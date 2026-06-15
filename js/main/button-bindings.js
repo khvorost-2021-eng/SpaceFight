@@ -73,9 +73,7 @@ function bindButtons() {
     if (DOM.levelPrevBtn) DOM.levelPrevBtn.onclick = () => safeCall(Game.levelPagePrev);
     if (DOM.levelNextBtn) DOM.levelNextBtn.onclick = () => safeCall(Game.levelPageNext);
 
-    // 🔧 КНОПКИ ЭКРАНА СМЕРТИ — обработчики теперь устанавливаются в screens.js
-    // (чтобы динамически менять поведение для кампании/аркады)
-    // НО для надёжности оставляем фолбэк, если screens.js не вызвался:
+    // === КНОПКА "ЗАНОВО" НА ЭКРАНЕ СМЕРТИ ===
     if (DOM.restartBtn) {
         DOM.restartBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -106,12 +104,14 @@ function bindButtons() {
         });
     }
 
-    // 🔧 menuBtn — обработчик динамический, устанавливается в screens.js
-    // Если по какой-то причине не установлен, используем фолбэк
+    // 🔧 menuBtn и levelCompleteMenuBtn — ОБРАБОТЧИКИ УСТАНАВЛИВАЮТСЯ ДИНАМИЧЕСКИ В screens.js
+    // Здесь оставляем только фолбэк на случай если screens.js не вызвался
     if (DOM.menuBtn && !DOM.menuBtn.onclick) {
         DOM.menuBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            console.log('🏠 Клик: menuBtn (фолбэк)');
+            
             if (DOM.deathScreen) {
                 DOM.deathScreen.classList.add('hidden');
                 DOM.deathScreen.style.display = 'none';
@@ -126,11 +126,32 @@ function bindButtons() {
         });
     }
 
-    // === КНОПКИ ЭКРАНА ПОБЕДЫ ===
+    if (DOM.levelCompleteMenuBtn && !DOM.levelCompleteMenuBtn.onclick) {
+        DOM.levelCompleteMenuBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🏠 Клик: levelCompleteMenuBtn (фолбэк)');
+            
+            if (DOM.levelCompleteScreen) {
+                DOM.levelCompleteScreen.classList.add('hidden');
+                DOM.levelCompleteScreen.style.display = 'none';
+            }
+            document.body.classList.remove('showing-overlay');
+            
+            if (Game.state.mode === 'campaign') {
+                safeCall(Game.showLevelSelect);
+            } else {
+                safeCall(Game.showMainMenu);
+            }
+        });
+    }
+
+    // === КНОПКА "СЛЕДУЮЩИЙ УРОВЕНЬ" ===
     if (DOM.nextLevelBtn) {
         DOM.nextLevelBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            console.log('➡️ Клик: Следующий уровень');
             
             if (DOM.levelCompleteScreen) {
                 DOM.levelCompleteScreen.classList.add('hidden');
@@ -146,25 +167,6 @@ function bindButtons() {
             }
             
             safeCall(Game.nextLevel);
-        });
-    }
-
-    // 🔧 levelCompleteMenuBtn — обработчик динамический (screens.js)
-    if (DOM.levelCompleteMenuBtn && !DOM.levelCompleteMenuBtn.onclick) {
-        DOM.levelCompleteMenuBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (DOM.levelCompleteScreen) {
-                DOM.levelCompleteScreen.classList.add('hidden');
-                DOM.levelCompleteScreen.style.display = 'none';
-            }
-            document.body.classList.remove('showing-overlay');
-            
-            if (Game.state.mode === 'campaign') {
-                safeCall(Game.showLevelSelect);
-            } else {
-                safeCall(Game.showMainMenu);
-            }
         });
     }
 

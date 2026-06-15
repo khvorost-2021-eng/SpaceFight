@@ -49,18 +49,18 @@ Game.showDeathScreen = function() {
         deathScreen.style.zIndex = '2000';
     }
 
-    // 🔧 ДИНАМИЧЕСКАЯ КНОПКА "В УРОВНИ" ДЛЯ КАМПАНИИ
+    // 🔧 ДИНАМИЧЕСКИЙ ОБРАБОТЧИК menuBtn — зависит от режима
     const menuBtn = document.getElementById('menuBtn');
     if (menuBtn) {
         menuBtn.style.pointerEvents = 'auto';
         menuBtn.style.zIndex = '2001';
         
         if (s.mode === 'campaign') {
-            // 🔧 Кампания: "В уровни" → экран выбора уровней
             menuBtn.textContent = '🗺️ В уровни';
             menuBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('🗺️ Клик: В уровни (из смерти)');
                 
                 if (DOM.deathScreen) {
                     DOM.deathScreen.classList.add('hidden');
@@ -69,16 +69,14 @@ Game.showDeathScreen = function() {
                     DOM.deathScreen.style.pointerEvents = 'none';
                 }
                 document.body.classList.remove('showing-overlay');
-                
-                // Переходим в выбор уровней, а НЕ в главное меню
                 safeCall(Game.showLevelSelect);
             };
         } else {
-            // 🕹️ Аркада: обычное "В меню"
             menuBtn.textContent = '🏠 В меню';
             menuBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('🏠 Клик: В меню (из смерти)');
                 
                 if (DOM.deathScreen) {
                     DOM.deathScreen.classList.add('hidden');
@@ -147,15 +145,15 @@ Game.showLevelCompleteScreen = function() {
         completeScreen.style.zIndex = '';
     }
 
-    // 🔧 ДИНАМИЧЕСКАЯ КНОПКА "В УРОВНИ" ДЛЯ КАМПАНИИ
+    // 🔧 ДИНАМИЧЕСКИЙ ОБРАБОТЧИК levelCompleteMenuBtn
     const levelCompleteMenuBtn = document.getElementById('levelCompleteMenuBtn');
     if (levelCompleteMenuBtn) {
         if (s.mode === 'campaign') {
-            // 🔧 Кампания: "В уровни" → экран выбора уровней
             levelCompleteMenuBtn.textContent = '🗺️ В уровни';
             levelCompleteMenuBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('🗺️ Клик: В уровни (из победы)');
                 
                 if (DOM.levelCompleteScreen) {
                     DOM.levelCompleteScreen.classList.add('hidden');
@@ -167,11 +165,11 @@ Game.showLevelCompleteScreen = function() {
                 safeCall(Game.showLevelSelect);
             };
         } else {
-            // 🕹️ Аркада: обычное "В меню"
             levelCompleteMenuBtn.textContent = '🏠 В меню';
             levelCompleteMenuBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('🏠 Клик: В меню (из победы)');
                 
                 if (DOM.levelCompleteScreen) {
                     DOM.levelCompleteScreen.classList.add('hidden');

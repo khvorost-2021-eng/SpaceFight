@@ -430,3 +430,13 @@ body {
         font-size: 16px !important;
     }
 }
+
+/* ============================================
+CANVAS ДОЛЖЕН ПРИНИМАТЬ TOUCH-СОБЫТИЯ
+============================================ */
+@media (max-width: 768px) {
+    #gameCanvas {
+        pointer-events: auto !important;
+        touch-action: none !important;
+    }
+}

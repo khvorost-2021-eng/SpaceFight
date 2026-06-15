@@ -22,9 +22,12 @@ function setupEventHandlers() {
         isTouching = true;
         const touch = e.touches[0];
         const rect = Game.canvas.getBoundingClientRect();
-        // Масштабируем координаты с учётом возможного CSS-масштабирования canvas
+        
+        // Масштабирование координат (CSS size vs actual canvas size)
         const scaleX = Game.canvas.width / rect.width;
         const scaleY = Game.canvas.height / rect.height;
+        
+        // 🔧 ПРЯМАЯ УСТАНОВКА координат пальца
         Game.mouse.x = (touch.clientX - rect.left) * scaleX;
         Game.mouse.y = (touch.clientY - rect.top) * scaleY;
     }, { passive: false });
@@ -40,8 +43,8 @@ function setupEventHandlers() {
         const scaleX = Game.canvas.width / rect.width;
         const scaleY = Game.canvas.height / rect.height;
         
-        // 🔧 КЛЮЧЕВОЕ: прямая установка координат пальца
-        // updatePlayer() сам плавно догонит: p.x += (m.x - p.x) * 0.1
+        // 🔧 КЛЮЧЕВОЕ: постоянно обновляем целевую точку = точка пальца
+        // updatePlayer() в player.js сам плавно подтянет корабль: p.x += (m.x - p.x) * 0.1
         Game.mouse.x = (touch.clientX - rect.left) * scaleX;
         Game.mouse.y = (touch.clientY - rect.top) * scaleY;
     }, { passive: false });
@@ -59,6 +62,7 @@ function setupEventHandlers() {
     // === ОТСЛЕЖИВАНИЕ МЫШИ (десктоп) — НЕ ТРОГАЕМ ===
     document.addEventListener('mousemove', (e) => {
         if (isTouching) return;
+
         const rect = Game.canvas.getBoundingClientRect();
         Game.mouse.x = e.clientX - rect.left;
         Game.mouse.y = e.clientY - rect.top;
@@ -68,6 +72,7 @@ function setupEventHandlers() {
     document.addEventListener('keydown', (e) => {
         const s = Game.state;
 
+        // ESC — пауза во время игры
         if (e.key === 'Escape') {
             if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
                 s.currentState = Game.STATE.PAUSED;
@@ -92,6 +97,7 @@ function setupEventHandlers() {
             }
         }
 
+        // Стрелки для навигации по уровням
         const currentViewVar = typeof currentView !== 'undefined' ? currentView : null;
         if (currentViewVar === 'levels') {
             if (e.key === 'ArrowLeft') safeCall(Game.levelPagePrev);
