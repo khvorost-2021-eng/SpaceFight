@@ -1,4 +1,5 @@
-Game.createExplosion = function(x, y, isPlayer = false) {
+Game.createExplosion = function(x, y, isPlayer) {
+    isPlayer = isPlayer || false;
     const count = isPlayer ? 50 : 20;
     const size = isPlayer ? 6 : 3;
     
@@ -17,7 +18,7 @@ Game.createExplosion = function(x, y, isPlayer = false) {
     }
     
     if (isPlayer) {
-        Game.state.shakeAmount = 20; // Тряска СРАЗУ
+        Game.state.shakeAmount = 20;
     }
 };
 
@@ -36,18 +37,22 @@ Game.createHitFlash = function(x, y) {
     }
 };
 
+// === ГЛАВНЫЙ UPDATE ===
 Game.update = function() {
     const s = Game.state;
+    
+    // Всегда обновляем частицы и тряску (даже в меню/смерти)
+    for (let i = Game.particles.length - 1; i >= 0; i--) {
+        const p = Game.particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.1;
+        p.life -= p.decay;
+        if (p.life <= 0) Game.particles.splice(i, 1);
+    }
+    s.shakeAmount *= 0.9;
+    if (s.shakeAmount < 0.1) s.shakeAmount = 0;
+    
+    // Если игра не активна — выходим
     if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) {
-        // Частицы всё равно обновляем (чтобы тряска при смерти отработалась)
-        for (let i = Game.particles.length - 1; i >= 0; i--) {
-            const p = Game.particles[i];
-            p.x += p.vx; p.y += p.vy; p.vy += 0.1;
-            p.life -= p.decay;
-            if (p.life <= 0) Game.particles.splice(i, 1);
-        }
-        s.shakeAmount *= 0.9;
-        if (s.shakeAmount < 0.1) s.shakeAmount = 0;
         return;
     }
     
@@ -69,23 +74,38 @@ Game.update = function() {
     Game.updateEnemies();
     Game.checkWaveComplete();
     
-    // Announcement таймер
-    if (s.announcementTimer > 0) s.announcementTimer--;
-    
-    // Частицы
-    for (let i = Game.particles.length - 1; i >= 0; i--) {
-        const p = Game.particles[i];
-        p.x += p.vx; p.y += p.vy; p.vy += 0.1;
-        p.life -= p.decay;
-        if (p.life <= 0) Game.particles.splice(i, 1);
+    // === КЛЮЧЕВАЯ ЛОГИКА: переход к следующей волне ===
+    if (s.waveState === 'CLEARED') {
+        s.waveTimer++;
+        if (s.waveTimer > 120) {
+            // Переходим к следующей волне
+            const nextWaveIndex = s.currentWave; // currentWave=1, значит next index = 1
+            console.log(`Переход к волне ${nextWaveIndex + 1}`);
+            
+            if (nextWaveIndex >= s.totalWaves) {
+                // Все волны пройдены
+                if (s.mode === 'campaign') {
+                    Game.levelComplete();
+                } else {
+                    // Аркада: генерируем новые волны
+                    s.levelWaves = Game.generateEndlessWaves(s.score);
+                    s.totalWaves = s.levelWaves.length;
+                    s.currentWave = 0;
+                    Game.startWave(0);
+                }
+            } else {
+                Game.startWave(nextWaveIndex);
+            }
+        }
     }
     
-    s.shakeAmount *= 0.9;
-    if (s.shakeAmount < 0.1) s.shakeAmount = 0;
+    if (s.announcementTimer > 0) s.announcementTimer--;
     
-    // Коллизии пуль с врагами
-    Game.bullets.forEach((bullet, bIndex) => {
-        Game.enemies.forEach((enemy, eIndex) => {
+    // Коллизии пуль игрока с врагами
+    for (let bIndex = Game.bullets.length - 1; bIndex >= 0; bIndex--) {
+        const bullet = Game.bullets[bIndex];
+        for (let eIndex = Game.enemies.length - 1; eIndex >= 0; eIndex--) {
+            const enemy = Game.enemies[eIndex];
             const params = ENEMY_PARAMS[enemy.type];
             const hitDistance = enemy.type === 'boss' ? 70 : (params.width + params.height) / 4;
             const dx = bullet.x - enemy.x;
@@ -100,74 +120,47 @@ Game.update = function() {
                     Game.enemies.splice(eIndex, 1);
                     s.score += enemy.scoreValue;
                 }
+                break;
             }
-        });
-    });
+        }
+    }
     
     // Столкновения с игроком
     if (s.invulnerable <= 0) {
-        Game.enemyBullets.forEach((bullet, bIndex) => {
+        for (let bIndex = Game.enemyBullets.length - 1; bIndex >= 0; bIndex--) {
+            const bullet = Game.enemyBullets[bIndex];
             const dx = bullet.x - Game.player.x;
             const dy = bullet.y - Game.player.y;
             if (Math.sqrt(dx * dx + dy * dy) < 25) {
                 Game.enemyBullets.splice(bIndex, 1);
-                if (Game.takeDamage()) Game.gameOver();
+                if (Game.takeDamage()) {
+                    Game.gameOver();
+                    return;
+                }
             }
-        });
+        }
         
-        Game.enemies.forEach((enemy, eIndex) => {
+        for (let eIndex = Game.enemies.length - 1; eIndex >= 0; eIndex--) {
+            const enemy = Game.enemies[eIndex];
             const params = ENEMY_PARAMS[enemy.type];
             const hitDistance = enemy.type === 'boss' ? 60 : (params.width + params.height) / 4;
             const dx = enemy.x - Game.player.x;
             const dy = enemy.y - Game.player.y;
             if (Math.sqrt(dx * dx + dy * dy) < hitDistance) {
-                // Камикадзе всегда взрывается
                 if (enemy.kamikaze || enemy.type !== 'boss') {
                     Game.createExplosion(enemy.x, enemy.y);
                     Game.enemies.splice(eIndex, 1);
                 }
-                if (Game.takeDamage()) Game.gameOver();
+                if (Game.takeDamage()) {
+                    Game.gameOver();
+                    return;
+                }
             }
-        });
-    }
-};
-
-// === ПРОВЕРКА ЗАВЕРШЕНИЯ ВОЛНЫ ===
-Game.checkWaveComplete = function() {
-    const s = Game.state;
-    if (s.waveState !== 'ACTIVE' && s.waveState !== 'SPAWNING') return;
-    if (s.waveState === 'SPAWNING') return; // ещё спавн
-    
-    const aliveEnemies = Game.enemies.length;
-    if (aliveEnemies === 0) {
-        s.waveState = 'CLEARED';
-        s.waveTimer = 0;
-        s.waveAnnouncement = '✓ ВОЛНА ЗАЧИЩЕНА';
-        s.announcementTimer = 90;
-    }
-};
-
-// === СЛЕДУЮЩАЯ ВОЛНА ИЛИ ПОБЕДА ===
-Game.advanceWave = function() {
-    const s = Game.state;
-    const nextWaveIndex = s.currentWave; // currentWave уже 1-based, а индекс 0-based
-    
-    if (nextWaveIndex >= s.totalWaves) {
-        // Все волны пройдены — уровень пройден!
-        if (s.mode === 'campaign') {
-            Game.levelComplete();
-        } else {
-            // В аркаде — генерируем новые волны
-            s.levelWaves = Game.generateEndlessWaves(s.score);
-            s.totalWaves = s.levelWaves.length;
-            Game.startWave(0);
         }
-    } else {
-        Game.startWave(nextWaveIndex);
     }
 };
 
-// Генерация бесконечных волн для аркады
+// === БЕСКОНЕЧНЫЕ ВОЛНЫ ДЛЯ АРКАДЫ ===
 Game.generateEndlessWaves = function(currentScore) {
     const diffLevel = Math.floor(currentScore / 30) + 4;
     return Game.generateWavesForLevel(diffLevel);
@@ -190,11 +183,10 @@ Game.levelComplete = function() {
     Game.showLevelCompleteScreen();
 };
 
-// === GAME OVER С ЗАДЕРЖКОЙ (ДЛЯ ОТРИСОВКИ ТРЯСКИ) ===
 Game.gameOver = function() {
     const s = Game.state;
     s.currentState = Game.STATE.GAME_OVER;
-    Game.createExplosion(Game.player.x, Game.player.y, true); // shakeAmount = 20 СРАЗУ
+    Game.createExplosion(Game.player.x, Game.player.y, true);
     
     s.coinsEarned = s.mode === 'arcade' ? Math.floor(s.score / 2) : Math.floor(s.score * 1.5);
     Game.playerData.coins += s.coinsEarned;
@@ -202,9 +194,7 @@ Game.gameOver = function() {
     
     if (s.mode === 'arcade') Game.submitLeaderboardScore(s.score);
     
-    // Ждём 1.5 секунды, чтобы тряска и взрыв успели отобразиться
     setTimeout(() => {
-        // СБРАСЫВАЕМ все анимации перед показом экрана
         Game.state.shakeAmount = 0;
         Game.particles.length = 0;
         Game.showDeathScreen();
@@ -261,14 +251,13 @@ Game.draw = function() {
         ctx.globalAlpha = 1;
     });
     
-    // Игрок рисуется только когда жив
     if (Game.state.currentState === Game.STATE.ARCADE || Game.state.currentState === Game.STATE.CAMPAIGN) {
         Game.drawPlayer(Game.player.x, Game.player.y, Game.player.rotation, Game.player.flameOffset);
     }
     
-    // Объявление волны
     if (Game.state.announcementTimer > 0 && 
-        (Game.state.currentState === Game.STATE.ARCADE || Game.state.currentState === Game.STATE.CAMPAIGN ||
+        (Game.state.currentState === Game.STATE.ARCADE || 
+         Game.state.currentState === Game.STATE.CAMPAIGN ||
          Game.state.currentState === Game.STATE.GAME_OVER)) {
         const alpha = Math.min(1, Game.state.announcementTimer / 30);
         ctx.save();
@@ -293,7 +282,7 @@ Game.gameLoop = function() {
     requestAnimationFrame(Game.gameLoop);
 };
 
-// === ПОЛНЫЙ СБРОС ВСЕХ АНИМАЦИЙ ===
+// === ПОЛНЫЙ СБРОС ===
 Game.resetAllAnimations = function() {
     Game.particles.length = 0;
     Game.bullets.length = 0;
@@ -302,11 +291,20 @@ Game.resetAllAnimations = function() {
     Game.state.shakeAmount = 0;
     Game.state.invulnerable = 0;
     Game.state.announcementTimer = 0;
+    Game.state.waveState = 'IDLE';
+    Game.state.currentWave = 0;
+};
+
+Game.clearEntities = function() {
+    Game.bullets.length = 0;
+    Game.enemyBullets.length = 0;
+    Game.enemies.length = 0;
+    Game.particles.length = 0;
 };
 
 Game.startGame = function(mode) {
     const s = Game.state;
-    Game.resetAllAnimations(); // СБРОС всего
+    Game.resetAllAnimations();
     
     s.mode = mode;
     s.score = 0;
@@ -330,6 +328,8 @@ Game.startGame = function(mode) {
     Game.hideAllScreens();
     document.body.style.cursor = 'none';
     
+    console.log(`Игра начата. Всего волн: ${s.totalWaves}`);
+    
     setTimeout(() => {
         if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
             Game.startWave(0);
@@ -339,7 +339,7 @@ Game.startGame = function(mode) {
 
 Game.startCampaignFromLevel = function(level) {
     const s = Game.state;
-    Game.resetAllAnimations(); // СБРОС всего
+    Game.resetAllAnimations();
     
     s.mode = 'campaign';
     s.level = level;
@@ -355,6 +355,8 @@ Game.startCampaignFromLevel = function(level) {
     Game.resetPlayer();
     Game.hideAllScreens();
     document.body.style.cursor = 'none';
+    
+    console.log(`Кампания: Уровень ${level}, всего волн: ${s.totalWaves}`);
     
     setTimeout(() => {
         if (s.currentState === Game.STATE.CAMPAIGN) {

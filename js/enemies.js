@@ -1,3 +1,4 @@
+// === СОСТОЯНИЯ ИИ ===
 const AI_STATE = {
     ENTERING: 'ENTERING',
     MANEUVERING: 'MANEUVERING',
@@ -56,7 +57,7 @@ Game.drawEnemy = function(enemy) {
     ctx.restore();
 };
 
-// === СОЗДАНИЕ ВРАГА С ПРИМЕНЕНИЕМ МОДИФИКАТОРОВ ===
+// === СОЗДАНИЕ ВРАГА ===
 Game.createEnemy = function(group, indexInGroup, totalInGroup) {
     const type = group.type;
     const params = ENEMY_PARAMS[type];
@@ -74,15 +75,15 @@ Game.createEnemy = function(group, indexInGroup, totalInGroup) {
     switch(side) {
         case 'left':
             startX = -50;
-            startY = 100 + (indexInGroup / totalInGroup) * 200;
+            startY = 100 + (indexInGroup / Math.max(1, totalInGroup)) * 200;
             targetX = 150 + Math.random() * 100;
-            targetY = 150 + (indexInGroup / totalInGroup) * 150;
+            targetY = 150 + (indexInGroup / Math.max(1, totalInGroup)) * 150;
             break;
         case 'right':
             startX = W + 50;
-            startY = 100 + (indexInGroup / totalInGroup) * 200;
+            startY = 100 + (indexInGroup / Math.max(1, totalInGroup)) * 200;
             targetX = W - 150 - Math.random() * 100;
-            targetY = 150 + (indexInGroup / totalInGroup) * 150;
+            targetY = 150 + (indexInGroup / Math.max(1, totalInGroup)) * 150;
             break;
         case 'top':
             startX = 100 + (indexInGroup / Math.max(1, totalInGroup - 1)) * (W - 200);
@@ -99,7 +100,7 @@ Game.createEnemy = function(group, indexInGroup, totalInGroup) {
             maneuverType = MANEUVER.HOLD;
             break;
         case 'surround': {
-            const angle = (indexInGroup / totalInGroup) * Math.PI * 2;
+            const angle = (indexInGroup / Math.max(1, totalInGroup)) * Math.PI * 2;
             const radius = 250;
             startX = W/2 + Math.cos(angle) * (Math.max(W, H) / 2 + 100);
             startY = H/2 + Math.sin(angle) * (Math.max(W, H) / 2 + 100);
@@ -126,7 +127,6 @@ Game.createEnemy = function(group, indexInGroup, totalInGroup) {
         }
     }
     
-    // Применяем модификаторы уровня
     let shootInterval = params.shootInterval;
     if (group.shootMult) shootInterval /= group.shootMult;
     shootInterval = Math.max(20, shootInterval / mods.shootFreqMult);
@@ -163,21 +163,23 @@ Game.createEnemy = function(group, indexInGroup, totalInGroup) {
         bossAttackPhase: 0
     };
     
-    // Для камикадзе — сразу атакующий режим
     if (enemy.kamikaze) {
         enemy.state = AI_STATE.KAMIKAZE;
-        enemy.speed *= 1.8; // Быстрее обычного
+        enemy.speed *= 1.8;
     }
     
     return enemy;
 };
 
-// === ЗАПУСК КОНКРЕТНОЙ ВОЛНЫ ===
+// === ЗАПУСК ВОЛНЫ ===
 Game.startWave = function(waveIndex) {
     const s = Game.state;
     const waveConfig = s.levelWaves[waveIndex];
     
-    if (!waveConfig) return;
+    if (!waveConfig) {
+        console.warn('Нет конфигурации для волны', waveIndex);
+        return;
+    }
     
     s.currentWave = waveIndex + 1;
     s.waveState = 'SPAWNING';
@@ -186,7 +188,6 @@ Game.startWave = function(waveIndex) {
     s.waveAnnouncement = waveConfig.description;
     s.announcementTimer = 120;
     
-    // Волна босса
     if (waveConfig.boss) {
         setTimeout(() => {
             if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
@@ -197,9 +198,8 @@ Game.startWave = function(waveIndex) {
         return;
     }
     
-    // Спавн групп
     let delay = 0;
-    waveConfig.groups.forEach((group, gi) => {
+    waveConfig.groups.forEach((group) => {
         const totalInGroup = Math.ceil(group.count);
         for (let i = 0; i < group.count; i++) {
             setTimeout(() => {
@@ -207,12 +207,14 @@ Game.startWave = function(waveIndex) {
                     Game.enemies.push(Game.createEnemy(group, i, totalInGroup));
                 }
             }, delay);
-            delay += group.type === 'boss' ? 500 : 300;
+            delay += 300;
         }
     });
     
     setTimeout(() => {
-        if (s.waveState === 'SPAWNING') s.waveState = 'ACTIVE';
+        if (s.waveState === 'SPAWNING') {
+            s.waveState = 'ACTIVE';
+        }
     }, delay + 500);
 };
 
@@ -246,13 +248,13 @@ Game.spawnBoss = function() {
         stateTimer: 0,
         attackDuration: 1000,
         useLead: true,
-        bossAttackPhase: 0,
-        moveDirection: 1
+        bossAttackPhase: 0
     };
     Game.enemies.push(boss);
 };
 
-Game.rotateTowards = function(entity, targetX, targetY, speed = 0.08) {
+Game.rotateTowards = function(entity, targetX, targetY, speed) {
+    speed = speed || 0.08;
     const dx = targetX - entity.x;
     const dy = targetY - entity.y;
     const targetAngle = Math.atan2(dy, dx) + Math.PI / 2;
@@ -261,7 +263,6 @@ Game.rotateTowards = function(entity, targetX, targetY, speed = 0.08) {
     entity.rotation += normalized * speed;
 };
 
-// === ВЫСТРЕЛ ИЗ НОСА ===
 Game.enemyShoot = function(enemy) {
     const player = Game.player;
     const s = Game.state;
@@ -344,7 +345,6 @@ Game.updateManeuver = function(enemy) {
     }
 };
 
-// === ГЛАВНЫЙ ЦИКЛ ИИ ===
 Game.updateEnemies = function() {
     const s = Game.state;
     const player = Game.player;
@@ -422,7 +422,6 @@ Game.updateEnemies = function() {
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 
                 if (dist < 20 || enemy.stateTimer > enemy.retreatDuration) {
-                    // Возвращаемся к маневрам
                     enemy.state = AI_STATE.MANEUVERING;
                     enemy.stateTimer = 0;
                     enemy.homeX = 100 + Math.random() * (Game.canvas.width - 200);
@@ -436,7 +435,6 @@ Game.updateEnemies = function() {
             }
             
             case AI_STATE.KAMIKAZE: {
-                // Летит прямо в игрока
                 const dx = player.x - enemy.x;
                 const dy = player.y - enemy.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
@@ -447,7 +445,6 @@ Game.updateEnemies = function() {
                 }
                 Game.rotateTowards(enemy, player.x, player.y, 0.15);
                 
-                // Небольшой зигзаг
                 enemy.maneuverPhase += 0.1;
                 const perpX = -dy / dist;
                 const perpY = dx / dist;
@@ -457,7 +454,6 @@ Game.updateEnemies = function() {
             }
         }
         
-        // Удаляем улетевших (кроме босса)
         if (enemy.type !== 'boss') {
             if (enemy.x < -200 || enemy.x > Game.canvas.width + 200 ||
                 enemy.y < -200 || enemy.y > Game.canvas.height + 200) {
@@ -466,7 +462,6 @@ Game.updateEnemies = function() {
         }
     }
     
-    // Вражеские пули
     for (let j = Game.enemyBullets.length - 1; j >= 0; j--) {
         const bullet = Game.enemyBullets[j];
         bullet.x += bullet.vx;
@@ -477,5 +472,21 @@ Game.updateEnemies = function() {
             bullet.y < -margin || bullet.y > Game.canvas.height + margin) {
             Game.enemyBullets.splice(j, 1);
         }
+    }
+};
+
+// === ПРОВЕРКА ЗАВЕРШЕНИЯ ВОЛНЫ ===
+Game.checkWaveComplete = function() {
+    const s = Game.state;
+    // Проверяем только в состоянии ACTIVE (не во время спавна)
+    if (s.waveState !== 'ACTIVE') return;
+    
+    // Если врагов не осталось — волна зачищена
+    if (Game.enemies.length === 0) {
+        s.waveState = 'CLEARED';
+        s.waveTimer = 0;
+        s.waveAnnouncement = '✓ ВОЛНА ЗАЧИЩЕНА';
+        s.announcementTimer = 90;
+        console.log(`Волна ${s.currentWave} зачищена!`);
     }
 };

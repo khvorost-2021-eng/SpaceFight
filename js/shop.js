@@ -1,16 +1,8 @@
-Game.SKINS = [
-    { id: 'standard', name: 'Стандартный', price: 0, color: '#00ffff' },
-    { id: 'red', name: 'Красный (Скоро)', price: 100, color: '#ff0000' },
-    { id: 'green', name: 'Зелёный (Скоро)', price: 150, color: '#00ff00' },
-    { id: 'purple', name: 'Фиолетовый (Скоро)', price: 200, color: '#aa00ff' },
-    { id: 'gold', name: 'Золотой (Скоро)', price: 500, color: '#ffd700' }
-];
-
 Game.showSkinsScreen = function() {
     Game.transitionTo('skinsScreen', () => {
         Game.state.currentState = Game.STATE.SKINS;
-        const skinsGrid = document.getElementById('skinsGrid');
-        skinsGrid.innerHTML = '';
+        const grid = document.getElementById('skinsGrid');
+        grid.innerHTML = '';
         
         Game.SKINS.forEach(skin => {
             const card = document.createElement('div');
@@ -28,11 +20,7 @@ Game.showSkinsScreen = function() {
             else if (skin.price > 0) priceText = `${skin.price} монет`;
             else priceText = 'Бесплатно';
             
-            card.innerHTML = `
-                <div class="skin-name">${skin.name}</div>
-                <div class="skin-price">${priceText}</div>
-            `;
-            
+            card.innerHTML = `<div class="skin-name">${skin.name}</div><div class="skin-price">${priceText}</div>`;
             card.addEventListener('click', () => {
                 if (isOwned) {
                     Game.playerData.selectedSkin = skin.id;
@@ -40,10 +28,8 @@ Game.showSkinsScreen = function() {
                     Game.showSkinsScreen();
                 }
             });
-            
-            skinsGrid.appendChild(card);
+            grid.appendChild(card);
         });
-        
         document.body.style.cursor = 'default';
     });
 };

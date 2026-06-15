@@ -6,9 +6,14 @@ Game.canvas.width = window.innerWidth;
 Game.canvas.height = window.innerHeight;
 
 Game.STATE = {
-    MENU: 'menu', LEVEL_SELECT: 'levelSelect', SKINS: 'skins',
-    ARCADE: 'arcade', CAMPAIGN: 'campaign',
-    PAUSED: 'paused', GAME_OVER: 'gameOver', LEVEL_COMPLETE: 'levelComplete'
+    MENU: 'menu',
+    LEVEL_SELECT: 'levelSelect',
+    SKINS: 'skins',
+    ARCADE: 'arcade',
+    CAMPAIGN: 'campaign',
+    PAUSED: 'paused',
+    GAME_OVER: 'gameOver',
+    LEVEL_COMPLETE: 'levelComplete'
 };
 
 Game.state = {
@@ -28,11 +33,11 @@ Game.state = {
     // === ВОЛНЫ ===
     currentWave: 0,
     totalWaves: 0,
-    waveState: 'IDLE',
+    waveState: 'IDLE', // IDLE, SPAWNING, ACTIVE, CLEARED
     waveTimer: 0,
     waveAnnouncement: '',
     announcementTimer: 0,
-    levelWaves: [], // массив волн для текущего уровня
+    levelWaves: [],
     currentWaveConfig: null
 };
 
@@ -71,10 +76,9 @@ Game.playerData = {
     maxLevelUnlocked: 1
 };
 
-// === МОДИФИКАТОРЫ СЛОЖНОСТИ ОТ УРОВНЯ ===
+// === МОДИФИКАТОРЫ СЛОЖНОСТИ ===
 Game.getLevelModifiers = function(level, mode) {
     if (mode === 'arcade') {
-        // В аркаде сложность растёт от счёта
         const diff = Math.min(Game.state.score / 30, 8);
         return {
             speedMult: 1 + diff * 0.08,
@@ -84,17 +88,16 @@ Game.getLevelModifiers = function(level, mode) {
             useLead: diff >= 4
         };
     }
-    // Кампания: плавное усложнение от уровня
     return {
-        speedMult: 1 + (level - 1) * 0.05,          // +5% за уровень
-        shootFreqMult: 1 + (level - 1) * 0.10,      // +10% за уровень
+        speedMult: 1 + (level - 1) * 0.05,
+        shootFreqMult: 1 + (level - 1) * 0.10,
         accuracyBonus: Math.min(0.2, (level - 1) * 0.015),
         countMult: 1 + (level - 1) * 0.05,
         useLead: level >= 6
     };
 };
 
-// === СКРИПТЫ УРОВНЕЙ 1-3 (ОБУЧЕНИЕ) ===
+// === СКРИПТЫ УРОВНЕЙ 1-3 ===
 Game.LEVEL_SCRIPTS = {
     1: {
         waves: [
@@ -158,7 +161,7 @@ Game.LEVEL_SCRIPTS = {
     }
 };
 
-// === ПРОЦЕДУРНЫЙ ГЕНЕРАТОР ВОЛН ДЛЯ УРОВНЕЙ 4+ ===
+// === ПРОЦЕДУРНЫЙ ГЕНЕРАТОР ВОЛН 4+ ===
 Game.generateWavesForLevel = function(level) {
     const isBossLevel = level % 5 === 0;
     const waveCount = isBossLevel ? 6 : Math.min(8, 5 + Math.floor((level - 3) / 3));
@@ -189,7 +192,6 @@ Game.generateWavesForLevel = function(level) {
             wave.groups.push({ type: 'normal', count: baseCount, side: 'surround', role: 'attacker', canShoot: true });
             wave.groups.push({ type: 'fast', count: 2, side: 'flanks', role: 'distractor', canShoot: true });
         } else if (i === 3) {
-            // Камикадзе
             wave.groups.push({ type: 'fast', count: baseCount + 1, side: 'surround', role: 'kamikaze', canShoot: false, kamikaze: true });
         } else if (i === 4) {
             wave.groups.push({ type: 'armored', count: 2 + Math.floor(level / 5), side: 'center', role: 'attacker', canShoot: true });
@@ -215,7 +217,7 @@ Game.getWavesForLevel = function(level) {
     return Game.generateWavesForLevel(level);
 };
 
-// === SVG СПРАЙТЫ КОРАБЛЕЙ ===
+// === SVG КОРАБЛЕЙ ===
 const SHIP_SVGS = {
     player: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -30 60 70" width="120" height="140">
       <defs><filter id="blueGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
@@ -291,6 +293,7 @@ Game.loadShips = function() {
             loaded++;
             if (loaded === keys.length) {
                 Game.shipsLoaded = true;
+                console.log('✅ Корабли загружены');
                 resolve();
             }
         };
@@ -300,20 +303,24 @@ Game.loadShips = function() {
                 const url = URL.createObjectURL(blob);
                 const img = new Image();
                 img.onload = () => { Game.ships[key] = img; check(); };
-                img.onerror = () => check();
+                img.onerror = () => { console.warn('Не удалось загрузить', key); check(); };
                 img.src = url;
-            } catch (e) { check(); }
+            } catch (e) {
+                console.warn('Ошибка SVG:', key, e);
+                check();
+            }
         });
     });
 };
 
-// === ЯНДЕКС SDK И СОХРАНЕНИЯ ===
+// === YANDEX SDK ===
 Game.ysdk = null;
 Game.yandexPlayer = null;
 
 Game.initYandexSDK = async function() {
     const isIframe = window.parent !== window && typeof YaGames !== 'undefined';
     if (!isIframe) {
+        console.log('Локальный режим: localStorage');
         const saved = localStorage.getItem('playerData');
         if (saved) {
             try {
@@ -332,7 +339,10 @@ Game.initYandexSDK = async function() {
         Object.assign(Game.playerData, data);
         if (!Game.playerData.levelsCompleted) Game.playerData.levelsCompleted = [];
         if (!Game.playerData.maxLevelUnlocked) Game.playerData.maxLevelUnlocked = 1;
-    } catch (err) { console.error('Yandex SDK error:', err); }
+        console.log('Yandex SDK initialized');
+    } catch (err) {
+        console.error('Yandex SDK error:', err);
+    }
 };
 
 Game.savePlayerData = function() {
@@ -348,7 +358,9 @@ Game.savePlayerData = function() {
         } else {
             localStorage.setItem('playerData', JSON.stringify(Game.playerData));
         }
-    } catch (err) { console.error('Save error:', err); }
+    } catch (err) {
+        console.error('Save error:', err);
+    }
 };
 
 Game.submitLeaderboardScore = async function(score) {
@@ -357,5 +369,7 @@ Game.submitLeaderboardScore = async function(score) {
             const isAvailable = await Game.ysdk.isAvailableMethod('leaderboards.setScore');
             if (isAvailable) await Game.ysdk.leaderboards.setScore('highscore', score);
         }
-    } catch (err) { console.error('Leaderboard error:', err); }
+    } catch (err) {
+        console.error('Leaderboard error:', err);
+    }
 };

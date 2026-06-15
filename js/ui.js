@@ -1,4 +1,3 @@
-// === СИСТЕМА FADE + SCALE ПЕРЕХОДОВ ===
 Game.transitionTo = function(targetId, onMiddle) {
     const screens = document.querySelectorAll('.screen');
     const current = Array.from(screens).find(s => !s.classList.contains('hidden'));
@@ -13,34 +12,31 @@ Game.transitionTo = function(targetId, onMiddle) {
         return;
     }
     
-    // Fade out + scale down
     current.classList.add('fade-out');
     
     setTimeout(() => {
         current.classList.add('hidden');
         current.classList.remove('fade-out');
         
-        // Показываем новый экран в начальном состоянии (scale 0.95, opacity 0)
         target.classList.remove('hidden');
         target.classList.add('fade-out');
-        target.offsetHeight; // force reflow
+        target.offsetHeight;
         
         if (onMiddle) onMiddle();
         Game.animateButtons(target);
         
-        // Fade in + scale up
         setTimeout(() => {
             target.classList.remove('fade-out');
         }, 20);
     }, 300);
 };
 
-// === STAGGER АНИМАЦИЯ ДЛЯ КНОПОК ===
 Game.animateButtons = function(screen) {
+    if (!screen) return;
     const buttons = screen.querySelectorAll('button');
     buttons.forEach((btn, i) => {
         btn.style.animation = 'none';
-        btn.offsetHeight; // force reflow
+        btn.offsetHeight;
         btn.style.animation = `buttonAppear 400ms ease-out ${i * 50}ms forwards`;
     });
 };
@@ -67,17 +63,10 @@ Game.updateUI = function() {
             hpContainer.appendChild(heart);
         }
         
-        let info = '';
-        if (s.mode === 'campaign') {
-            info = `Уровень ${s.level}`;
-        } else {
-            info = 'Аркада';
-        }
+        let info = s.mode === 'campaign' ? `Уровень ${s.level}` : 'Аркада';
         info += ` | Волна ${s.currentWave}/${s.totalWaves}`;
-        
         const aliveCount = Game.enemies.length;
         if (aliveCount > 0) info += ` | Врагов: ${aliveCount}`;
-        
         document.getElementById('levelDisplay').textContent = info;
     } else {
         document.getElementById('ui').classList.add('hidden');
@@ -120,42 +109,6 @@ Game.showLevelSelect = function() {
             }
             grid.appendChild(card);
         }
-        document.body.style.cursor = 'default';
-    });
-};
-
-Game.showSkinsScreen = function() {
-    Game.transitionTo('skinsScreen', () => {
-        Game.state.currentState = Game.STATE.SKINS;
-        const grid = document.getElementById('skinsGrid');
-        grid.innerHTML = '';
-        
-        Game.SKINS.forEach(skin => {
-            const card = document.createElement('div');
-            card.className = 'skin-card';
-            
-            const isOwned = Game.playerData.skins.includes(skin.id);
-            const isSelected = Game.playerData.selectedSkin === skin.id;
-            
-            if (isSelected) card.classList.add('selected');
-            if (!isOwned && skin.price > 0) card.classList.add('locked');
-            
-            let priceText;
-            if (isSelected) priceText = 'Выбран';
-            else if (isOwned) priceText = 'Выбрать';
-            else if (skin.price > 0) priceText = `${skin.price} монет`;
-            else priceText = 'Бесплатно';
-            
-            card.innerHTML = `<div class="skin-name">${skin.name}</div><div class="skin-price">${priceText}</div>`;
-            card.addEventListener('click', () => {
-                if (isOwned) {
-                    Game.playerData.selectedSkin = skin.id;
-                    Game.savePlayerData();
-                    Game.showSkinsScreen();
-                }
-            });
-            grid.appendChild(card);
-        });
         document.body.style.cursor = 'default';
     });
 };

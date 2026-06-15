@@ -1,8 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     overflow: hidden;
@@ -13,18 +9,15 @@ body {
 #gameCanvas {
     display: block;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
     z-index: 0;
     pointer-events: none;
 }
 
 #ui {
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 20px; left: 20px;
     color: #0ff;
     font-size: 24px;
     font-weight: bold;
@@ -37,8 +30,7 @@ body {
 #hpContainer { display: flex; gap: 8px; }
 
 .hp-heart {
-    width: 30px;
-    height: 30px;
+    width: 30px; height: 30px;
     background: #ff0066;
     clip-path: path('M15 25 L5 15 Q0 10 0 5 Q0 0 5 0 Q10 0 15 5 Q20 0 25 0 Q30 0 30 5 Q30 10 25 15 L15 25');
     box-shadow: 0 0 10px #ff0066;
@@ -46,13 +38,10 @@ body {
 
 .hp-heart.empty { background: #333; box-shadow: none; }
 
-/* === ЭКРАНЫ С FADE + SCALE === */
 .screen {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: rgba(0, 0, 17, 0.95);
     display: flex;
     justify-content: center;
@@ -72,10 +61,7 @@ body {
 
 .screen.hidden { display: none !important; }
 
-/* Для экранов смерти/победы делаем фон почти непрозрачным */
-#deathScreen, #levelCompleteScreen {
-    background: rgba(0, 0, 17, 0.98);
-}
+#deathScreen, #levelCompleteScreen { background: rgba(0, 0, 17, 0.98); }
 
 .menu {
     text-align: center;
@@ -91,12 +77,8 @@ body {
     text-shadow: 0 0 20px #0ff;
 }
 
-.menu p {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
+.menu p { font-size: 24px; margin-bottom: 20px; }
 
-/* === КНОПКИ СО STAGGER-АНИМАЦИЕЙ === */
 .menu button {
     display: block;
     width: 100%;
@@ -116,10 +98,7 @@ body {
 }
 
 @keyframes buttonAppear {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .menu button:hover {
@@ -140,7 +119,6 @@ body {
     text-shadow: 0 0 10px #ffd700;
 }
 
-/* === СЕТКА УРОВНЕЙ === */
 .level-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -189,8 +167,7 @@ body {
 .level-card.completed::after {
     content: '✓';
     position: absolute;
-    top: 5px;
-    right: 8px;
+    top: 5px; right: 8px;
     font-size: 20px;
     color: #00ff66;
     text-shadow: 0 0 5px #00ff66;
@@ -219,13 +196,11 @@ body {
 .level-card.locked::after {
     content: '🔒';
     position: absolute;
-    top: 5px;
-    right: 8px;
+    top: 5px; right: 8px;
     font-size: 16px;
     opacity: 0.7;
 }
 
-/* === СЕТКА СКИНОВ === */
 #skinsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

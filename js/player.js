@@ -8,7 +8,6 @@ Game.drawPlayer = function(x, y, rotation, flameOffset) {
         ctx.globalAlpha = 0.5;
     }
     
-    // SVG спрайт
     if (Game.ships.player) {
         const scale = 1.4;
         const w = 60 * scale;
@@ -16,7 +15,6 @@ Game.drawPlayer = function(x, y, rotation, flameOffset) {
         ctx.drawImage(Game.ships.player, -w/2, -h/2, w, h);
     }
     
-    // Анимированное пламя двигателей (поверх SVG)
     const neonColor = '#88ccff';
     for (let i = -1; i <= 1; i += 2) {
         const engineX = i * 2;

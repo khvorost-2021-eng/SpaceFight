@@ -13,14 +13,7 @@ Game.init = async function() {
     ]);
     
     Game.showMainMenu();
-    
-    function loop() {
-        Game.update();
-        Game.draw();
-        Game.updateUI();
-        requestAnimationFrame(loop);
-    }
-    requestAnimationFrame(loop);
+    Game.gameLoop();
     
     document.addEventListener('mousemove', (e) => {
         Game.mouse.x = e.clientX;
