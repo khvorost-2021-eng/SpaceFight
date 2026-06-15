@@ -1,7 +1,6 @@
 // ==========================================
 // ПРИВЯЗКА КНОПОК
 // ==========================================
-
 function bindButtons() {
     // === КНОПКА "ИГРАТЬ" (АРКАДА) ===
     if (DOM.arcadeBtn) {
@@ -18,7 +17,7 @@ function bindButtons() {
             safeCall(Game.startGame, 'arcade');
         };
     }
-    
+
     // === МОБИЛЬНАЯ КНОПКА ПАУЗЫ ===
     if (DOM.mobilePauseBtn) {
         DOM.mobilePauseBtn.addEventListener('click', (e) => {
@@ -38,15 +37,12 @@ function bindButtons() {
                 document.body.style.cursor = 'default';
             }
         });
-        console.log('✅ Обработчик mobilePauseBtn привязан');
     }
-    
+
     // === КНОПКА "ПРОДОЛЖИТЬ" В ПАУЗЕ ===
     if (DOM.pauseResumeBtn) {
         DOM.pauseResumeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log('▶️ Клик: Продолжить');
-            
             const s = Game.state;
             if (s.currentState === Game.STATE.PAUSED) {
                 s.currentState = s.mode === 'arcade' ? Game.STATE.ARCADE : Game.STATE.CAMPAIGN;
@@ -59,13 +55,11 @@ function bindButtons() {
             }
         });
     }
-    
+
     // === КНОПКА "ВЫЙТИ В МЕНЮ" В ПАУЗЕ ===
     if (DOM.pauseMenuBtn) {
         DOM.pauseMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log('🏠 Клик: Выйти в меню из паузы');
-            
             if (DOM.pauseScreen) {
                 DOM.pauseScreen.classList.add('hidden');
                 DOM.pauseScreen.style.display = 'none';
@@ -74,12 +68,14 @@ function bindButtons() {
             safeCall(Game.showMainMenu);
         });
     }
-    
+
     // === НАВИГАЦИЯ ПО УРОВНЯМ ===
     if (DOM.levelPrevBtn) DOM.levelPrevBtn.onclick = () => safeCall(Game.levelPagePrev);
     if (DOM.levelNextBtn) DOM.levelNextBtn.onclick = () => safeCall(Game.levelPageNext);
-    
-    // === КНОПКИ ЭКРАНА СМЕРТИ ===
+
+    // 🔧 КНОПКИ ЭКРАНА СМЕРТИ — обработчики теперь устанавливаются в screens.js
+    // (чтобы динамически менять поведение для кампании/аркады)
+    // НО для надёжности оставляем фолбэк, если screens.js не вызвался:
     if (DOM.restartBtn) {
         DOM.restartBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -108,34 +104,33 @@ function bindButtons() {
                 safeCall(Game.startCampaignFromLevel, level);
             }
         });
-        console.log('✅ Обработчик restartBtn привязан');
     }
-    
-    if (DOM.menuBtn) {
+
+    // 🔧 menuBtn — обработчик динамический, устанавливается в screens.js
+    // Если по какой-то причине не установлен, используем фолбэк
+    if (DOM.menuBtn && !DOM.menuBtn.onclick) {
         DOM.menuBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🏠 Клик: Главное меню');
-            
             if (DOM.deathScreen) {
                 DOM.deathScreen.classList.add('hidden');
                 DOM.deathScreen.style.display = 'none';
-                DOM.deathScreen.style.visibility = 'hidden';
-                DOM.deathScreen.style.pointerEvents = 'none';
             }
-            
             document.body.classList.remove('showing-overlay');
-            safeCall(Game.showMainMenu);
+            
+            if (Game.state.mode === 'campaign') {
+                safeCall(Game.showLevelSelect);
+            } else {
+                safeCall(Game.showMainMenu);
+            }
         });
-        console.log('✅ Обработчик menuBtn привязан');
     }
-    
+
     // === КНОПКИ ЭКРАНА ПОБЕДЫ ===
     if (DOM.nextLevelBtn) {
         DOM.nextLevelBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('➡️ Клик: Следующий уровень');
             
             if (DOM.levelCompleteScreen) {
                 DOM.levelCompleteScreen.classList.add('hidden');
@@ -152,28 +147,27 @@ function bindButtons() {
             
             safeCall(Game.nextLevel);
         });
-        console.log('✅ Обработчик nextLevelBtn привязан');
     }
-    
-    if (DOM.levelCompleteMenuBtn) {
+
+    // 🔧 levelCompleteMenuBtn — обработчик динамический (screens.js)
+    if (DOM.levelCompleteMenuBtn && !DOM.levelCompleteMenuBtn.onclick) {
         DOM.levelCompleteMenuBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🏠 Клик: Главное меню (после победы)');
-            
             if (DOM.levelCompleteScreen) {
                 DOM.levelCompleteScreen.classList.add('hidden');
                 DOM.levelCompleteScreen.style.display = 'none';
-                DOM.levelCompleteScreen.style.visibility = 'hidden';
-                DOM.levelCompleteScreen.style.pointerEvents = 'none';
             }
-            
             document.body.classList.remove('showing-overlay');
-            safeCall(Game.showMainMenu);
+            
+            if (Game.state.mode === 'campaign') {
+                safeCall(Game.showLevelSelect);
+            } else {
+                safeCall(Game.showMainMenu);
+            }
         });
-        console.log('✅ Обработчик levelCompleteMenuBtn привязан');
     }
-    
+
     // === ВКЛАДКИ МАГАЗИНА ===
     document.querySelectorAll('.shop-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
@@ -184,10 +178,8 @@ function bindButtons() {
             }
         });
     });
-    
+
     console.log('✅ Все кнопки привязаны');
 }
-
 window.bindButtons = bindButtons;
-
 console.log('✅ main/button-bindings.js загружен');

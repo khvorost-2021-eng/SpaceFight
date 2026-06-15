@@ -4,12 +4,13 @@
 /* Кнопка паузы для мобильных — скрыта по умолчанию */
 .mobile-pause-btn {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid rgba(0, 255, 255, 0.5);
+    top: 80px;           /* Ниже HUD (Счёт/Монеты сверху) */
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1.5px solid rgba(0, 255, 255, 0.4);
     border-radius: 50%;
     color: #0ff;
     display: none;
@@ -17,14 +18,14 @@
     align-items: center;
     cursor: pointer;
     z-index: 1500;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .mobile-pause-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.92);
     background: rgba(0, 255, 255, 0.3);
 }
 
@@ -47,7 +48,7 @@ body {
 АДАПТИВНОСТЬ: ПЛАНШЕТЫ И ТЕЛЕФОНЫ
 ============================================ */
 @media (max-width: 768px) {
-    /* Показываем кнопку паузы на мобильных */
+    /* Показываем кнопку паузы на мобильных во время игры */
     body.in-game .mobile-pause-btn:not(.hidden) {
         display: flex;
     }
@@ -260,13 +261,6 @@ body {
     .level-card {
         font-size: 22px;
     }
-
-    .mobile-pause-btn {
-        width: 48px;
-        height: 48px;
-        top: 15px;
-        right: 15px;
-    }
 }
 
 /* ============================================
@@ -311,11 +305,14 @@ body {
 ============================================ */
 @media (max-width: 768px) {
     #gameCanvas {
+        position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        position: fixed !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
     }
 }
 
@@ -423,5 +420,13 @@ body {
     #ui .hp-heart {
         width: 17px !important;
         height: 17px !important;
+    }
+    
+    .mobile-pause-btn {
+        width: 36px !important;
+        height: 36px !important;
+        top: 75px !important;
+        right: 8px !important;
+        font-size: 16px !important;
     }
 }

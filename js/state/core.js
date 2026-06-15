@@ -5,25 +5,31 @@ window.Game = window.Game || {};
 Game.canvas = document.getElementById('gameCanvas');
 Game.ctx = Game.canvas.getContext('2d');
 
-// 🔧 CANVAS ВСЕГДА ПОЛНОЭКРАННЫЙ (и ПК, и мобильные)
+// 🔧 CANVAS ВСЕГДА ТОЧНО ПО РАЗМЕРУ ЭКРАНА (без отступов)
 function updateCanvasSize() {
-    Game.canvas.width = window.innerWidth;
-    Game.canvas.height = window.innerHeight;
+    // Используем innerWidth — не включает scrollbar
+    const W = window.innerWidth;
+    const H = window.innerHeight;
     
-    Game.canvas.style.width = window.innerWidth + 'px';
-    Game.canvas.style.height = window.innerHeight + 'px';
+    Game.canvas.width = W;
+    Game.canvas.height = H;
+    
+    // Принудительно сбрасываем inline-стили чтобы CSS не конфликтовал
+    Game.canvas.style.width = W + 'px';
+    Game.canvas.style.height = H + 'px';
     Game.canvas.style.top = '0px';
     Game.canvas.style.left = '0px';
+    Game.canvas.style.margin = '0';
+    Game.canvas.style.padding = '0';
     
-    // Флаг для других модулей
-    Game.isMobile = window.innerWidth <= 768;
+    Game.isMobile = W <= 768;
     
-    console.log(`📐 Canvas: ${Game.canvas.width}x${Game.canvas.height} (${Game.isMobile ? '📱 моб' : '💻 ПК'})`);
+    console.log(`📐 Canvas: ${W}x${H} (${Game.isMobile ? '📱 моб' : '💻 ПК'})`);
 }
 updateCanvasSize();
 window.addEventListener('resize', updateCanvasSize);
 window.addEventListener('orientationchange', () => {
-    setTimeout(updateCanvasSize, 100);
+    setTimeout(updateCanvasSize, 150);
 });
 
 // Состояния игры
@@ -69,10 +75,8 @@ Game.state = {
     isPlayerDead: false
 };
 
-// Позиция мыши/тача
 Game.mouse = { x: Game.canvas.width / 2, y: Game.canvas.height / 2 };
 
-// Игрок
 Game.player = {
     x: Game.canvas.width / 2,
     y: Game.canvas.height / 2,
@@ -83,7 +87,6 @@ Game.player = {
     visible: true
 };
 
-// Массивы сущностей
 Game.bullets = [];
 Game.enemyBullets = [];
 Game.enemies = [];
@@ -91,7 +94,6 @@ Game.particles = [];
 Game.drones = [];
 Game.stars = [];
 
-// Инициализация звёзд
 for (let i = 0; i < 200; i++) {
     Game.stars.push({
         x: Math.random() * Game.canvas.width,
