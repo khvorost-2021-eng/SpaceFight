@@ -1,0 +1,323 @@
+/* ============================================
+   МОБИЛЬНАЯ АДАПТАЦИЯ
+   ============================================ */
+
+/* Кнопка паузы для мобильных — скрыта по умолчанию */
+.mobile-pause-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    border-radius: 50%;
+    color: #0ff;
+    display: none; /* По умолчанию скрыта */
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1500;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mobile-pause-btn:active {
+    transform: scale(0.9);
+    background: rgba(0, 255, 255, 0.3);
+}
+
+.mobile-pause-btn.hidden {
+    display: none !important;
+}
+
+/* Отключаем выделение текста и taп-подсветку на мобильных */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+body {
+    touch-action: none; /* Запрещаем жесты браузера (зум, скролл) */
+    overscroll-behavior: none;
+}
+
+/* ============================================
+   АДАПТИВНОСТЬ: ПЛАНШЕТЫ И ТЕЛЕФОНЫ
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* Показываем кнопку паузы на мобильных */
+    body.in-game .mobile-pause-btn:not(.hidden) {
+        display: flex;
+    }
+    
+    /* Сужаем sidebar */
+    .sidebar {
+        width: 60px;
+        padding: 15px 0;
+        gap: 10px;
+    }
+    
+    .sidebar-logo {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 15px;
+    }
+    
+    .sidebar-btn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .btn-icon {
+        width: 24px;
+        height: 24px;
+    }
+    
+    /* Сдвигаем main-content */
+    .main-content {
+        left: 60px;
+        padding: 20px 15px;
+    }
+    
+    /* Заголовок DRONIX меньше */
+    .game-title {
+        font-size: 64px;
+        letter-spacing: 4px;
+    }
+    
+    .game-subtitle {
+        font-size: 16px;
+        letter-spacing: 2px;
+    }
+    
+    /* Статистика в столбик */
+    .hero-stats {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .stat-box {
+        width: 100%;
+        padding: 15px 20px;
+    }
+    
+    /* Кнопки крупнее для пальцев */
+    .primary-btn,
+    .secondary-btn {
+        padding: 18px 30px;
+        font-size: 16px;
+        min-height: 56px;
+        width: 100%;
+        max-width: 320px;
+    }
+    
+    /* Заголовки секций меньше */
+    .view-header h2 {
+        font-size: 24px;
+    }
+    
+    /* КАРТОЧКИ УРОВНЕЙ: 3 В РЯД */
+    .level-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .level-card {
+        font-size: 28px;
+    }
+    
+    .level-card-subtitle {
+        font-size: 9px;
+    }
+    
+    /* Слоты дронов: 3 в ряд */
+    .slots-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    /* Магазин: карточки крупнее */
+    .shop-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .shop-card {
+        padding: 12px;
+    }
+    
+    .shop-card-preview {
+        width: 80px;
+        height: 80px;
+    }
+    
+    /* Вкладки магазина крупнее */
+    .shop-tab {
+        padding: 14px 16px !important;
+        font-size: 15px !important;
+    }
+    
+    /* Профиль: компактный */
+    .profile-top {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-identity {
+        flex-direction: column;
+    }
+    
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+        font-size: 36px;
+    }
+    
+    .profile-name {
+        font-size: 22px;
+    }
+    
+    .profile-name-rank {
+        text-align: center;
+    }
+    
+    .profile-level-value {
+        font-size: 28px;
+    }
+    
+    .profile-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* HUD на мобильных — меньше шрифт */
+    #ui {
+        top: 15px;
+        left: 15px;
+        font-size: 16px;
+    }
+    
+    .hp-heart {
+        width: 24px;
+        height: 24px;
+    }
+    
+    /* Экраны смерти/победы */
+    .death-menu,
+    .complete-menu,
+    .pause-menu {
+        padding: 25px 20px;
+        max-width: 90%;
+    }
+    
+    .death-menu h1,
+    .complete-menu h1,
+    .pause-menu h1 {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+    
+    .death-menu p,
+    .complete-menu p,
+    .pause-menu p {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .death-menu button,
+    .complete-menu button,
+    .pause-menu button {
+        font-size: 16px;
+        padding: 16px 24px;
+        min-height: 52px;
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+/* ============================================
+   МАЛЕНЬКИЕ ТЕЛЕФОНЫ (< 400px)
+   ============================================ */
+
+@media (max-width: 400px) {
+    .sidebar {
+        width: 52px;
+    }
+    
+    .sidebar-btn {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .btn-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .main-content {
+        left: 52px;
+        padding: 15px 10px;
+    }
+    
+    .game-title {
+        font-size: 48px;
+    }
+    
+    .level-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .level-card {
+        font-size: 22px;
+    }
+    
+    .mobile-pause-btn {
+        width: 48px;
+        height: 48px;
+        top: 15px;
+        right: 15px;
+    }
+}
+
+/* ============================================
+   ЛАНДШАФТНАЯ ОРИЕНТАЦИЯ НА ТЕЛЕФОНАХ
+   ============================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .sidebar {
+        flex-direction: row;
+        width: 100%;
+        height: 60px;
+        padding: 0 10px;
+        border-right: none;
+        border-bottom: 2px solid rgba(0, 255, 255, 0.2);
+    }
+    
+    .sidebar-logo {
+        margin-bottom: 0;
+        margin-right: 10px;
+    }
+    
+    .main-content {
+        left: 0;
+        top: 60px;
+        padding: 15px;
+    }
+    
+    .mobile-pause-btn {
+        top: 75px;
+    }
+    
+    .game-title {
+        font-size: 48px;
+    }
+    
+    .hero-section {
+        min-height: calc(100vh - 140px);
+    }
+}

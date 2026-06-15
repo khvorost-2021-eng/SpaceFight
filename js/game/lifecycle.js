@@ -109,8 +109,22 @@ function actuallyStartGame(mode, level) {
             uiEl.style.visibility = '';
             uiEl.style.opacity = '';
             uiEl.style.pointerEvents = '';
-            uiEl.style.zIndex = '';
         }
+    }
+
+    // === СКРЫТИЕ ГЛАВНОГО МЕНЮ ===
+    if (typeof hideMainMenuUI === 'function') {
+        hideMainMenuUI();
+    } else {
+        const mainMenu = document.getElementById('mainMenu');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        if (mainMenu) {
+            mainMenu.style.display = 'none';
+            mainMenu.classList.add('hidden');
+        }
+        if (sidebar) sidebar.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'none';
     }
     
     // === ИНИЦИАЛИЗАЦИЯ ИГРОВОГО СОСТОЯНИЯ ===

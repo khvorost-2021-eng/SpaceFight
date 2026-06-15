@@ -40,6 +40,11 @@ const DOM = {
     // Пауза
     pauseScreen: null,
     
+    // Мобильная пауза
+    mobilePauseBtn: null,
+    pauseResumeBtn: null,
+    pauseMenuBtn: null,
+    
     // Sidebar и контент
     mainMenu: null,
     sidebar: null,
@@ -60,6 +65,9 @@ function cacheDOMElements() {
     DOM.deathScreen = document.getElementById('deathScreen');
     DOM.levelCompleteScreen = document.getElementById('levelCompleteScreen');
     DOM.pauseScreen = document.getElementById('pauseScreen');
+    DOM.mobilePauseBtn = document.getElementById('mobilePauseBtn');
+    DOM.pauseResumeBtn = document.getElementById('pauseResumeBtn');
+    DOM.pauseMenuBtn = document.getElementById('pauseMenuBtn');
     DOM.mainMenu = document.getElementById('mainMenu');
     DOM.sidebar = document.querySelector('.sidebar');
     DOM.mainContent = document.querySelector('.main-content');
@@ -91,9 +99,19 @@ function safeCall(fn, ...args) {
 function showGameHUD() {
     document.body.classList.add('in-game');
     document.body.classList.remove('showing-overlay');
-    if (DOM.ui) DOM.ui.classList.remove('hidden');
+    
+    const uiEl = document.getElementById('ui');
+    if (uiEl) {
+        uiEl.classList.remove('hidden');
+        // Сбрасываем inline-стили, чтобы CSS сработал
+        uiEl.style.display = '';
+        uiEl.style.visibility = '';
+        uiEl.style.opacity = '';
+        uiEl.style.pointerEvents = '';
+    }
+    
+    console.log('🎮 HUD показан');
 }
-
 /**
  * Скрывает игровой HUD
  */
@@ -135,6 +153,11 @@ function showMainMenuUI() {
     if (DOM.mainMenu) {
         DOM.mainMenu.classList.remove('hidden');
         DOM.mainMenu.classList.remove('fade-out');
+    }
+    
+    // Скрываем мобильную кнопку паузы
+    if (DOM.mobilePauseBtn) {
+        DOM.mobilePauseBtn.classList.add('hidden');
     }
 }
 
@@ -245,8 +268,84 @@ Game.init = async function() {
     document.addEventListener('click', enableAudio);
     document.addEventListener('keydown', enableAudio);
     
-    // === ОТСЛЕЖИВАНИЕ МЫШИ ===
+    // === TOUCH-УПРАВЛЕНИЕ (мобильные) ===
+    let isTouching = false;
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+    
+    // Touchstart — начинаем отслеживание
+    document.addEventListener('touchstart', (e) => {
+        const s = Game.state;
+        // Работает только во время игры
+        if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) {
+            return;
+        }
+        
+        // Игнорируем тапы по UI элементам (кнопки, sidebar и т.д.)
+        const target = e.target;
+        if (target.closest('.sidebar') || 
+            target.closest('.main-content') ||
+            target.closest('.screen') ||
+            target.closest('#ui') ||
+            target.closest('.mobile-pause-btn')) {
+            return;
+        }
+        
+        isTouching = true;
+        const touch = e.touches[0];
+        lastTouchX = touch.clientX;
+        lastTouchY = touch.clientY;
+        
+        // Сразу двигаем корабль к точке касания
+        Game.mouse.x = touch.clientX;
+        Game.mouse.y = touch.clientY;
+        
+    }, { passive: true });
+    
+    // Touchmove — НЕПРЕРЫВНОЕ движение за пальцем
+    document.addEventListener('touchmove', (e) => {
+        if (!isTouching) return;
+        
+        const s = Game.state;
+        if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) {
+            return;
+        }
+        
+        // Предотвращаем скролл и зум страницы
+        e.preventDefault();
+        
+        const touch = e.touches[0];
+        
+        // Плавное следование: используем offset от начальной точки
+        const deltaX = touch.clientX - lastTouchX;
+        const deltaY = touch.clientY - lastTouchY;
+        
+        Game.mouse.x += deltaX;
+        Game.mouse.y += deltaY;
+        
+        // Ограничиваем границы экрана
+        Game.mouse.x = Math.max(0, Math.min(Game.canvas.width, Game.mouse.x));
+        Game.mouse.y = Math.max(0, Math.min(Game.canvas.height, Game.mouse.y));
+        
+        lastTouchX = touch.clientX;
+        lastTouchY = touch.clientY;
+        
+    }, { passive: false });
+    
+    // Touchend — останавливаем отслеживание
+    document.addEventListener('touchend', (e) => {
+        isTouching = false;
+    }, { passive: true });
+    
+    // Touchcancel — на случай прерывания (звонок и т.п.)
+    document.addEventListener('touchcancel', (e) => {
+        isTouching = false;
+    }, { passive: true });
+    
+    // === ОТСЛЕЖИВАНИЕ МЫШИ (десктоп) ===
     document.addEventListener('mousemove', (e) => {
+        // Игнорируем мышь на touch-устройствах когда идёт touch
+        if (isTouching) return;
         Game.mouse.x = e.clientX;
         Game.mouse.y = e.clientY;
     });
@@ -294,12 +393,74 @@ Game.init = async function() {
     if (DOM.arcadeBtn) {
         DOM.arcadeBtn.onclick = () => {
             console.log('🎮 Клик: arcade');
-            // Скрываем меню перед стартом игры
             hideMainMenuUI();
             hideAllOverlayScreens();
             showGameHUD();
+            
+            // Показываем мобильную кнопку паузы
+            if (DOM.mobilePauseBtn) {
+                DOM.mobilePauseBtn.classList.remove('hidden');
+            }
+            
             safeCall(Game.startGame, 'arcade');
         };
+    }
+    
+    // === МОБИЛЬНАЯ КНОПКА ПАУЗЫ ===
+    if (DOM.mobilePauseBtn) {
+        DOM.mobilePauseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('📱 Клик: мобильная пауза');
+            
+            const s = Game.state;
+            if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
+                s.currentState = Game.STATE.PAUSED;
+                document.body.classList.add('showing-overlay');
+                if (DOM.pauseScreen) {
+                    DOM.pauseScreen.classList.remove('hidden');
+                    DOM.pauseScreen.style.display = '';
+                    DOM.pauseScreen.style.visibility = '';
+                }
+                document.body.style.cursor = 'default';
+            }
+        });
+        console.log('✅ Обработчик mobilePauseBtn привязан');
+    }
+    
+    // === КНОПКА "ПРОДОЛЖИТЬ" В ПАУЗЕ ===
+    if (DOM.pauseResumeBtn) {
+        DOM.pauseResumeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('▶️ Клик: Продолжить');
+            
+            const s = Game.state;
+            if (s.currentState === Game.STATE.PAUSED) {
+                s.currentState = s.mode === 'arcade' ? Game.STATE.ARCADE : Game.STATE.CAMPAIGN;
+                document.body.classList.remove('showing-overlay');
+                if (DOM.pauseScreen) {
+                    DOM.pauseScreen.classList.add('hidden');
+                    DOM.pauseScreen.style.display = 'none';
+                }
+                document.body.style.cursor = 'none';
+            }
+        });
+    }
+    
+    // === КНОПКА "ВЫЙТИ В МЕНЮ" В ПАУЗЕ ===
+    if (DOM.pauseMenuBtn) {
+        DOM.pauseMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('🏠 Клик: Выйти в меню из паузы');
+            
+            // Скрываем экран паузы
+            if (DOM.pauseScreen) {
+                DOM.pauseScreen.classList.add('hidden');
+                DOM.pauseScreen.style.display = 'none';
+            }
+            document.body.classList.remove('showing-overlay');
+            safeCall(Game.showMainMenu);
+        });
     }
     
     // === НАВИГАЦИЯ ПО УРОВНЯМ ===
@@ -326,6 +487,11 @@ Game.init = async function() {
             
             document.body.classList.remove('showing-overlay');
             
+            // Показываем мобильную кнопку паузы
+            if (DOM.mobilePauseBtn) {
+                DOM.mobilePauseBtn.classList.remove('hidden');
+            }
+            
             if (mode === 'arcade') {
                 safeCall(Game.startGame, 'arcade');
             } else {
@@ -333,8 +499,6 @@ Game.init = async function() {
             }
         });
         console.log('✅ Обработчик restartBtn привязан');
-    } else {
-        console.warn('⚠️ restartBtn не найден');
     }
     
     if (DOM.menuBtn) {
@@ -355,8 +519,6 @@ Game.init = async function() {
             safeCall(Game.showMainMenu);
         });
         console.log('✅ Обработчик menuBtn привязан');
-    } else {
-        console.warn('⚠️ menuBtn не найден');
     }
     
     // === КНОПКИ ЭКРАНА ПОБЕДЫ ===
@@ -374,6 +536,12 @@ Game.init = async function() {
             }
             
             document.body.classList.remove('showing-overlay');
+            
+            // Показываем мобильную кнопку паузы
+            if (DOM.mobilePauseBtn) {
+                DOM.mobilePauseBtn.classList.remove('hidden');
+            }
+            
             safeCall(Game.nextLevel);
         });
         console.log('✅ Обработчик nextLevelBtn привязан');

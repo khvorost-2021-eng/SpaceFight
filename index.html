@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DRONIX - Космический Шутер</title>
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/hud.css">
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/screens.css">
     <link rel="stylesheet" href="css/overlays.css">
     <link rel="stylesheet" href="css/utilities.css">
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
@@ -158,11 +159,21 @@
         </div>
     </div>
     
+    <!-- КНОПКА ПАУЗЫ ДЛЯ МОБИЛЬНЫХ (видна только на телефонах во время игры) -->
+    <button id="mobilePauseBtn" class="mobile-pause-btn hidden" aria-label="Пауза">
+        <svg viewBox="0 0 24 24" width="28" height="28">
+            <rect x="6" y="5" width="4" height="14" fill="currentColor"/>
+            <rect x="14" y="5" width="4" height="14" fill="currentColor"/>
+        </svg>
+    </button>
+    
     <!-- ЭКРАН ПАУЗЫ -->
     <div id="pauseScreen" class="screen hidden">
         <div class="pause-menu">
             <h1>Пауза</h1>
             <p>Нажмите ESC чтобы продолжить</p>
+            <button id="pauseResumeBtn" class="primary-btn">Продолжить</button>
+            <button id="pauseMenuBtn" class="secondary-btn">Выйти в меню</button>
         </div>
     </div>
     

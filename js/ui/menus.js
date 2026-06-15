@@ -11,9 +11,15 @@ Game.showMainMenu = function() {
     document.body.classList.remove('in-game');
     document.body.classList.remove('showing-overlay');
     
-    // === Скрываем игровой HUD ===
+    // === ЖЕЛЕЗОБЕТОННОЕ СКРЫТИЕ ИГРОВОГО HUD ===
     const uiEl = document.getElementById('ui');
-    if (uiEl) uiEl.classList.add('hidden');
+    if (uiEl) {
+        uiEl.classList.add('hidden');
+        uiEl.style.display = 'none';
+        uiEl.style.visibility = 'hidden';
+        uiEl.style.opacity = '0';
+        uiEl.style.pointerEvents = 'none';
+    }
     
     // === Принудительно скрываем все игровые экраны ===
     const screensToHide = ['deathScreen', 'levelCompleteScreen', 'pauseScreen'];
@@ -26,6 +32,12 @@ Game.showMainMenu = function() {
             el.style.pointerEvents = 'none';
         }
     });
+    
+    // === Скрываем мобильную кнопку паузы ===
+    const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+    if (mobilePauseBtn) {
+        mobilePauseBtn.classList.add('hidden');
+    }
     
     // === Восстанавливаем видимость sidebar и main-content ===
     const sidebar = document.querySelector('.sidebar');
@@ -75,7 +87,7 @@ Game.showMainMenu = function() {
     }
     
     document.body.style.cursor = 'default';
-    console.log('✅ Возврат в главное меню');
+    console.log('✅ Возврат в главное меню - HUD скрыт');
 };
 
 function switchView(viewName) {

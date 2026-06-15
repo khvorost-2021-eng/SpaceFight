@@ -12,13 +12,7 @@
     text-shadow: 0 0 10px #0ff;
     pointer-events: none;
     z-index: 100;
-    transition: opacity 200ms ease-out;
-    opacity: 1;
-}
-
-#ui.hidden {
-    opacity: 0 !important;
-    pointer-events: none !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 #ui > div {
@@ -67,4 +61,51 @@
 #levelDisplay {
     color: #00ff00;
     text-shadow: 0 0 10px #00ff00;
+}
+
+/* Мобильная адаптация HUD */
+@media (max-width: 768px) {
+    #ui {
+        top: 12px;
+        left: 12px;
+        font-size: 14px;
+    }
+    
+    #ui > div {
+        margin-bottom: 6px;
+    }
+    
+    .hp-heart {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* ============================================
+   ПРИНУДИТЕЛЬНОЕ СКРЫТИЕ HUD В МЕНЮ
+   ============================================ */
+
+#ui.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+}
+
+/* Когда body имеет класс in-game — HUD виден */
+body.in-game #ui:not(.hidden) {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    z-index: 100 !important;
+}
+
+/* Когда body НЕ имеет класс in-game — HUD скрыт */
+body:not(.in-game) #ui {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
