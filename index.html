@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Космический Шутер</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui" class="hidden">
+        <div id="score">Счёт: 0</div>
+        <div id="hpContainer"></div>
+        <div id="coinsDisplay">Монеты: 0</div>
+        <div id="levelDisplay"></div>
+    </div>
+    
+    <div id="mainMenu" class="screen">
+        <div class="menu">
+            <h1>Космический Шутер</h1>
+            <div id="menuCoins">Монеты: 0</div>
+            <button id="arcadeBtn">Бесконечный режим</button>
+            <button id="campaignBtn">Кампания</button>
+            <button id="skinsBtn">Скины</button>
+        </div>
+    </div>
+    
+    <div id="levelSelectScreen" class="screen hidden">
+        <div class="menu">
+            <h1>Выбор уровня</h1>
+            <div id="levelGrid" class="level-grid"></div>
+            <button id="levelSelectBackBtn">Назад</button>
+        </div>
+    </div>
+    
+    <div id="skinsScreen" class="screen hidden">
+        <div class="menu">
+            <h1>Скины</h1>
+            <div id="skinsGrid"></div>
+            <button id="backBtn">Назад</button>
+        </div>
+    </div>
+    
+    <div id="pauseScreen" class="screen hidden">
+        <div class="menu">
+            <h1>Пауза</h1>
+            <p>Нажмите ESC чтобы продолжить</p>
+        </div>
+    </div>
+    
+    <div id="deathScreen" class="screen hidden">
+        <div class="menu">
+            <h1>Вы погибли</h1>
+            <p id="deathScore">Счёт: 0</p>
+            <p id="deathCoins">Получено монет: 0</p>
+            <button id="restartBtn">Заново</button>
+            <button id="menuBtn">Главное меню</button>
+        </div>
+    </div>
+    
+    <div id="levelCompleteScreen" class="screen hidden">
+        <div class="menu">
+            <h1>Уровень пройден!</h1>
+            <p id="levelCompleteInfo"></p>
+            <button id="nextLevelBtn">Следующий уровень</button>
+            <button id="levelCompleteMenuBtn">Главное меню</button>
+        </div>
+    </div>
+    
+    <script src="https://yandex.ru/games/sdk/v2"></script>
+    <script src="lang.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/shop.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
