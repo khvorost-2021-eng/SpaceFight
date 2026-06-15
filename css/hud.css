@@ -1,0 +1,70 @@
+/* ============================================
+   ИГРОВОЙ HUD (счёт, сердечки, монеты)
+   ============================================ */
+
+#ui {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: #0ff;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #0ff;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 200ms ease-out;
+    opacity: 1;
+}
+
+#ui.hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#ui > div {
+    margin-bottom: 10px;
+}
+
+#hpContainer {
+    display: flex;
+    gap: 8px;
+}
+
+.hp-heart {
+    width: 30px;
+    height: 30px;
+    background: #ff0066;
+    clip-path: path('M15 25 L5 15 Q0 10 0 5 Q0 0 5 0 Q10 0 15 5 Q20 0 25 0 Q30 0 30 5 Q30 10 25 15 L15 25');
+    box-shadow: 0 0 10px #ff0066;
+    transition: all 0.3s;
+}
+
+.hp-heart.empty {
+    background: #333;
+    box-shadow: none;
+}
+
+#menuCoins,
+#shopCoins {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+}
+
+#menuLevel {
+    font-size: 20px;
+    color: #88ccff;
+    text-shadow: 0 0 8px #88ccff;
+    margin-bottom: 15px;
+}
+
+#coinsDisplay {
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+}
+
+#levelDisplay {
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+}
