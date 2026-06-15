@@ -1,7 +1,6 @@
 // ==========================================
 // ОБРАБОТЧИКИ СОБЫТИЙ (Touch, Mouse, Keyboard)
 // ==========================================
-
 function setupEventHandlers() {
     // === АКТИВАЦИЯ АУДИО ===
     const enableAudio = () => {
@@ -11,86 +10,60 @@ function setupEventHandlers() {
     };
     document.addEventListener('click', enableAudio);
     document.addEventListener('keydown', enableAudio);
-    
-    // === TOUCH-УПРАВЛЕНИЕ (мобильные) ===
+
+    // === TOUCH-УПРАВЛЕНИЕ (мобильные) — НЕПРЕРЫВНОЕ СЛЕДОВАНИЕ ===
     let isTouching = false;
-    let lastTouchX = 0;
-    let lastTouchY = 0;
-    
+
     Game.canvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const s = Game.state;
-        
-        if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) {
-            return;
-        }
-        
+        if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) return;
+
         isTouching = true;
         const touch = e.touches[0];
-        
         const rect = Game.canvas.getBoundingClientRect();
-        const canvasX = touch.clientX - rect.left;
-        const canvasY = touch.clientY - rect.top;
-        
-        lastTouchX = canvasX;
-        lastTouchY = canvasY;
-        
-        Game.mouse.x = canvasX;
-        Game.mouse.y = canvasY;
-        
+        // СРАЗУ ставим мышь в точку касания — корабль плавно полетит туда
+        Game.mouse.x = touch.clientX - rect.left;
+        Game.mouse.y = touch.clientY - rect.top;
     }, { passive: false });
-    
+
     Game.canvas.addEventListener('touchmove', (e) => {
         e.preventDefault();
         if (!isTouching) return;
-        
         const s = Game.state;
-        if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) {
-            return;
-        }
-        
+        if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) return;
+
         const touch = e.touches[0];
         const rect = Game.canvas.getBoundingClientRect();
-        const canvasX = touch.clientX - rect.left;
-        const canvasY = touch.clientY - rect.top;
-        
-        const deltaX = canvasX - lastTouchX;
-        const deltaY = canvasY - lastTouchY;
-        
-        Game.mouse.x += deltaX;
-        Game.mouse.y += deltaY;
-        
-        Game.mouse.x = Math.max(0, Math.min(Game.canvas.width, Game.mouse.x));
-        Game.mouse.y = Math.max(0, Math.min(Game.canvas.height, Game.mouse.y));
-        
-        lastTouchX = canvasX;
-        lastTouchY = canvasY;
-        
+        // КЛЮЧЕВОЕ: постоянно обновляем целевую точку = точка пальца
+        // updatePlayer() в player.js сам плавно подтянет корабль: p.x += (m.x - p.x) * 0.1
+        Game.mouse.x = touch.clientX - rect.left;
+        Game.mouse.y = touch.clientY - rect.top;
     }, { passive: false });
-    
+
     Game.canvas.addEventListener('touchend', (e) => {
         e.preventDefault();
         isTouching = false;
     }, { passive: false });
-    
+
     Game.canvas.addEventListener('touchcancel', (e) => {
         e.preventDefault();
         isTouching = false;
     }, { passive: false });
-    
+
     // === ОТСЛЕЖИВАНИЕ МЫШИ (десктоп) ===
     document.addEventListener('mousemove', (e) => {
         if (isTouching) return;
-        
+
         const rect = Game.canvas.getBoundingClientRect();
         Game.mouse.x = e.clientX - rect.left;
         Game.mouse.y = e.clientY - rect.top;
     });
-    
+
     // === ОБРАБОТКА КЛАВИАТУРЫ ===
     document.addEventListener('keydown', (e) => {
         const s = Game.state;
-        
+
         // ESC — пауза во время игры
         if (e.key === 'Escape') {
             if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
@@ -115,7 +88,7 @@ function setupEventHandlers() {
                 document.body.style.cursor = 'none';
             }
         }
-        
+
         // Стрелки для навигации по уровням
         const currentViewVar = typeof currentView !== 'undefined' ? currentView : null;
         if (currentViewVar === 'levels') {
@@ -123,10 +96,8 @@ function setupEventHandlers() {
             if (e.key === 'ArrowRight') safeCall(Game.levelPageNext);
         }
     });
-    
+
     console.log('✅ Обработчики событий настроены');
 }
-
 window.setupEventHandlers = setupEventHandlers;
-
 console.log('✅ main/event-handlers.js загружен');

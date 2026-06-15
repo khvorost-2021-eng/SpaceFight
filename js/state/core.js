@@ -1,37 +1,40 @@
 // ==========================================
 // БАЗОВАЯ ИНИЦИАЛИЗАЦИЯ И СОСТОЯНИЕ
 // ==========================================
-
 window.Game = window.Game || {};
-
 Game.canvas = document.getElementById('gameCanvas');
 Game.ctx = Game.canvas.getContext('2d');
 
 // Обновление размера canvas
 function updateCanvasSize() {
     const isMobile = window.innerWidth <= 768;
-    
     if (isMobile) {
-        const topOffset = window.innerWidth <= 400 ? 50 : 60;
-        const bottomOffset = window.innerWidth <= 400 ? 50 : 60;
-        
-        Game.canvas.width = window.innerWidth;
-        Game.canvas.height = window.innerHeight - topOffset - bottomOffset;
-        
-        Game.canvas.style.width = window.innerWidth + 'px';
-        Game.canvas.style.height = (window.innerHeight - topOffset - bottomOffset) + 'px';
+        // 🔧 МОБИЛЬНЫЕ: большие отступы сверху (HUD) и снизу (безопасная зона)
+        // Это даёт игроку время увидеть врагов до того, как они долетят
+        const topOffset = 80;     // место под HUD и запас
+        const bottomOffset = 120; // безопасная зона снизу
+
+        const displayWidth = window.innerWidth;
+        const displayHeight = window.innerHeight - topOffset - bottomOffset;
+
+        Game.canvas.width = displayWidth;
+        Game.canvas.height = displayHeight;
+
+        Game.canvas.style.width = displayWidth + 'px';
+        Game.canvas.style.height = displayHeight + 'px';
+        Game.canvas.style.top = topOffset + 'px';
+        Game.canvas.style.left = '0px';
+
+        console.log(`📐 Canvas мобильный: ${Game.canvas.width}x${Game.canvas.height} (top: ${topOffset}px)`);
     } else {
+        // 💻 ПК: БЕЗ ИЗМЕНЕНИЙ
         Game.canvas.width = window.innerWidth;
         Game.canvas.height = window.innerHeight;
         Game.canvas.style.width = '';
         Game.canvas.style.height = '';
     }
-    
-    console.log(`📐 Canvas размер: ${Game.canvas.width}x${Game.canvas.height}`);
 }
-
 updateCanvasSize();
-
 window.addEventListener('resize', updateCanvasSize);
 window.addEventListener('orientationchange', () => {
     setTimeout(updateCanvasSize, 100);
