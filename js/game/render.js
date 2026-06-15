@@ -1,13 +1,11 @@
 // ==========================================
 // ОТРИСОВКА И ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ
 // ==========================================
-
 function drawHealerAura(ctx, drone, time) {
     const type = drone.type;
     const color = type.color;
     const healProgress = drone.healTimer / type.healInterval;
     
-    // Постоянное мягкое свечение
     ctx.save();
     const glowPulse = 0.3 + Math.sin(time * 2) * 0.1;
     const gradient = ctx.createRadialGradient(
@@ -17,14 +15,14 @@ function drawHealerAura(ctx, drone, time) {
     gradient.addColorStop(0, `rgba(0, 255, 136, ${glowPulse * 0.3})`);
     gradient.addColorStop(0.5, `rgba(0, 255, 136, ${glowPulse * 0.15})`);
     gradient.addColorStop(1, 'rgba(0, 255, 136, 0)');
-    
+
     ctx.globalCompositeOperation = 'lighter';
     ctx.fillStyle = gradient;
     ctx.beginPath();
     ctx.arc(drone.x, drone.y, 40, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
-    
+
     // Вращающиеся частицы-плюсики
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -45,7 +43,7 @@ function drawHealerAura(ctx, drone, time) {
         ctx.fillRect(px - 4, py - 1, 8, 2);
     }
     ctx.restore();
-    
+
     // Кольцо прогресса
     if (healProgress > 0.7) {
         ctx.save();
@@ -78,7 +76,6 @@ function drawHealerAura(ctx, drone, time) {
 Game.drawDrones = function() {
     const ctx = Game.ctx;
     const time = Date.now() * 0.001;
-    
     Game.drones.forEach(drone => {
         if (!drone.alive) return;
         
@@ -139,15 +136,14 @@ Game.draw = function() {
             (Math.random() - 0.5) * Game.state.shakeAmount
         );
     }
-    
     ctx.fillStyle = '#000011';
     ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
-    
+
     Game.stars.forEach(star => {
         ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
         ctx.fillRect(star.x, star.y, star.size, star.size);
     });
-    
+
     Game.bullets.forEach(bullet => {
         ctx.save();
         if (bullet.vx !== undefined) {
@@ -167,7 +163,7 @@ Game.draw = function() {
         ctx.shadowBlur = 0;
         ctx.restore();
     });
-    
+
     Game.enemyBullets.forEach(bullet => {
         const angle = Math.atan2(bullet.vy, bullet.vx) + Math.PI / 2;
         ctx.save();
@@ -180,10 +176,10 @@ Game.draw = function() {
         ctx.shadowBlur = 0;
         ctx.restore();
     });
-    
+
     Game.enemies.forEach(enemy => Game.drawEnemy(enemy));
     Game.drawDrones();
-    
+
     Game.particles.forEach(p => {
         ctx.save();
         ctx.fillStyle = p.color;
@@ -204,14 +200,15 @@ Game.draw = function() {
         }
         ctx.restore();
     });
-    
+
     const showPlayer = (Game.state.currentState === Game.STATE.ARCADE || 
                         Game.state.currentState === Game.STATE.CAMPAIGN) &&
                        Game.player.visible;
     if (showPlayer) {
         Game.drawPlayer(Game.player.x, Game.player.y, Game.player.rotation, Game.player.flameOffset);
     }
-    
+
+    // 🔧 АДАПТИВНЫЙ РАЗМЕР надписей атак
     if (Game.state.announcementTimer > 0 && 
         (Game.state.currentState === Game.STATE.ARCADE || 
          Game.state.currentState === Game.STATE.CAMPAIGN ||
@@ -220,15 +217,20 @@ Game.draw = function() {
         ctx.save();
         ctx.globalAlpha = alpha;
         ctx.fillStyle = '#ff4444';
-        ctx.font = 'bold 48px Arial';
+        
+        const isMobile = window.innerWidth <= 768;
+        const fontSize = isMobile ? 26 : 48;
+        const yPos = isMobile ? 50 : 100;
+        
+        ctx.font = `bold ${fontSize}px Arial`;
         ctx.textAlign = 'center';
         ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = 20;
-        ctx.fillText(Game.state.waveAnnouncement, Game.canvas.width / 2, 100);
+        ctx.shadowBlur = isMobile ? 12 : 20;
+        ctx.fillText(Game.state.waveAnnouncement, Game.canvas.width / 2, yPos);
         ctx.shadowBlur = 0;
         ctx.restore();
     }
-    
+
     ctx.restore();
 };
 
@@ -244,9 +246,9 @@ Game.update = function() {
     }
     s.shakeAmount *= 0.9;
     if (s.shakeAmount < 0.1) s.shakeAmount = 0;
-    
+
     if (s.announcementTimer > 0) s.announcementTimer--;
-    
+
     // DYING состояние
     if (s.currentState === Game.STATE.DYING) {
         s.deathAnimationTimer++;
@@ -283,14 +285,14 @@ Game.update = function() {
         }
         return;
     }
-    
+
     if (s.currentState !== Game.STATE.ARCADE && s.currentState !== Game.STATE.CAMPAIGN) {
         return;
     }
-    
+
     Game.updatePlayer();
     Game.updateDrones();
-    
+
     Game.stars.forEach(star => {
         star.y += star.speed;
         if (star.y > Game.canvas.height) {
@@ -298,7 +300,7 @@ Game.update = function() {
             star.x = Math.random() * Game.canvas.width;
         }
     });
-    
+
     // Обновление пуль игрока
     for (let i = Game.bullets.length - 1; i >= 0; i--) {
         const b = Game.bullets[i];
@@ -318,7 +320,7 @@ Game.update = function() {
             }
         }
     }
-    
+
     // Обновление вражеских пуль
     for (let i = Game.enemyBullets.length - 1; i >= 0; i--) {
         const b = Game.enemyBullets[i];
@@ -329,10 +331,10 @@ Game.update = function() {
             Game.enemyBullets.splice(i, 1);
         }
     }
-    
+
     Game.updateEnemies();
     Game.checkWaveComplete();
-    
+
     // Переход к следующей волне
     if (s.waveState === 'CLEARED') {
         s.waveTimer++;
@@ -352,7 +354,7 @@ Game.update = function() {
             }
         }
     }
-    
+
     // Проверки коллизий
     checkBulletEnemyCollisions();
     checkEnemyBulletPlayerCollisions();

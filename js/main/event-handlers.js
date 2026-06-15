@@ -36,7 +36,6 @@ function setupEventHandlers() {
         const touch = e.touches[0];
         const rect = Game.canvas.getBoundingClientRect();
         // КЛЮЧЕВОЕ: постоянно обновляем целевую точку = точка пальца
-        // updatePlayer() в player.js сам плавно подтянет корабль: p.x += (m.x - p.x) * 0.1
         Game.mouse.x = touch.clientX - rect.left;
         Game.mouse.y = touch.clientY - rect.top;
     }, { passive: false });

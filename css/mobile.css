@@ -12,7 +12,7 @@
     border: 2px solid rgba(0, 255, 255, 0.5);
     border-radius: 50%;
     color: #0ff;
-    display: none; /* По умолчанию скрыта */
+    display: none;
     justify-content: center;
     align-items: center;
     cursor: pointer;
@@ -39,7 +39,7 @@
 }
 
 body {
-    touch-action: none; /* Запрещаем жесты браузера (зум, скролл) */
+    touch-action: none;
     overscroll-behavior: none;
 }
 
@@ -192,18 +192,6 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    /* HUD на мобильных — меньше шрифт */
-    #ui {
-        top: 15px;
-        left: 15px;
-        font-size: 16px;
-    }
-
-    .hp-heart {
-        width: 24px;
-        height: 24px;
-    }
-
     /* Экраны смерти/победы */
     .death-menu,
     .complete-menu,
@@ -319,82 +307,121 @@ body {
 }
 
 /* ============================================
-ИСПРАВЛЕНИЕ CANVAS И HUD ДЛЯ МОБИЛЬНЫХ
+МОБИЛЬНЫЙ CANVAS: ПОЛНОЭКРАННЫЙ БЕЗ ОТСТУПОВ
 ============================================ */
 @media (max-width: 768px) {
-    /* Canvas — JS теперь сам устанавливает размеры, CSS не перекрывает */
     #gameCanvas {
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
         position: fixed !important;
     }
+}
 
-    /* HUD компактнее */
+/* ============================================
+МОБИЛЬНЫЙ HUD: МНОГОСТРОЧНЫЙ С КРУПНЫМ ШРИФТОМ
+============================================ */
+@media (max-width: 768px) {
     #ui {
-        top: 10px !important;
-        left: 10px !important;
-        right: 10px !important;
-        font-size: 12px !important;
-        line-height: 1.1 !important;
+        top: 12px !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: auto !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 2px !important;
-    }
-
-    #ui > div {
-        margin-bottom: 0 !important;
-        white-space: nowrap;
-        text-shadow: 0 0 6px currentColor;
-    }
-
-    #score {
-        font-size: 15px !important;
-    }
-
-    #coinsDisplay {
-        font-size: 13px !important;
-    }
-
-    #levelDisplay {
-        font-size: 11px !important;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: #88ff88 !important;
-    }
-
-    #hpContainer {
         gap: 3px !important;
+        pointer-events: none !important;
     }
-
-    .hp-heart {
-        width: 18px !important;
-        height: 18px !important;
+    
+    /* Строка HUD */
+    #ui .hud-row {
+        display: flex;
+        align-items: center;
+        width: 100%;
     }
-
+    
+    /* ====== ОСНОВНЫЕ ПОКАЗАТЕЛИ (КРУПНО) ====== */
+    #ui .hud-row-score {
+        justify-content: space-between;
+        font-size: 17px;
+        font-weight: bold;
+        text-shadow: 0 0 8px #0ff, 0 1px 2px rgba(0,0,0,0.9);
+        letter-spacing: 0.3px;
+    }
+    
+    #ui .hud-main {
+        color: #0ff;
+    }
+    
+    #ui .hud-coins {
+        color: #ffd700 !important;
+        text-shadow: 0 0 8px #ffd700, 0 1px 2px rgba(0,0,0,0.9) !important;
+    }
+    
+    /* Строка 2: HP сердечки */
+    #ui .hud-row-hp {
+        margin-top: 1px;
+    }
+    
+    #ui #hpContainer {
+        display: flex;
+        gap: 5px;
+    }
+    
+    #ui .hp-heart {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    /* ====== ВТОРОСТЕПЕННЫЕ (МЕЛЬЧЕ) ====== */
+    #ui .hud-row-level {
+        font-size: 13px;
+        color: #88ff88;
+        text-shadow: 0 0 6px rgba(0, 255, 100, 0.6), 0 1px 2px rgba(0,0,0,0.9);
+        margin-top: 2px;
+        font-weight: 600;
+    }
+    
+    #ui .hud-row-minor {
+        font-size: 11px;
+        color: #aaccff;
+        text-shadow: 0 0 4px rgba(100, 180, 255, 0.5), 0 1px 2px rgba(0,0,0,0.9);
+        letter-spacing: 0.2px;
+    }
+    
     /* Кнопка паузы не перекрывает HUD */
     .mobile-pause-btn {
-        top: 12px !important;
-        right: 12px !important;
+        top: 15px !important;
+        right: 15px !important;
         width: 44px !important;
         height: 44px !important;
     }
 }
 
-/* Маленькие телефоны — ещё компактнее */
-@media (max-width: 400px) {
+/* Очень маленькие телефоны (< 380px) — ещё компактнее */
+@media (max-width: 380px) {
     #ui {
-        font-size: 10px !important;
+        top: 8px !important;
+        left: 8px !important;
+        right: 8px !important;
+        gap: 2px !important;
     }
-    #score {
-        font-size: 13px !important;
+    
+    #ui .hud-row-score {
+        font-size: 15px;
     }
-    #coinsDisplay {
-        font-size: 11px !important;
+    
+    #ui .hud-row-level {
+        font-size: 12px;
     }
-    #levelDisplay {
-        font-size: 9px !important;
+    
+    #ui .hud-row-minor {
+        font-size: 10px;
     }
-    .hp-heart {
-        width: 15px !important;
-        height: 15px !important;
+    
+    #ui .hp-heart {
+        width: 17px !important;
+        height: 17px !important;
     }
 }
