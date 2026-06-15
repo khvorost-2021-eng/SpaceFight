@@ -202,22 +202,36 @@
     <script src="https://yandex.ru/games/sdk/v2"></script>
     <script src="lang.js"></script>
     
-    <!-- Базовое состояние -->
-    <script src="js/state.js"></script>
+    <!-- === STATE модули === -->
+    <script src="js/state/core.js"></script>
+    <script src="js/state/player-data.js"></script>
+    <script src="js/state/drones-config.js"></script>
+    <script src="js/state/assets.js"></script>
+    <script src="js/state/audio.js"></script>
+    <script src="js/state/levels-config.js"></script>
+    <script src="js/state/sdk.js"></script>
     
-    <!-- Игровая логика (порядок важен!) -->
+    <!-- === ENEMIES модули === -->
+    <script src="js/enemies/constants.js"></script>
+    <script src="js/enemies/rendering.js"></script>
+    <script src="js/enemies/creation.js"></script>
+    <script src="js/enemies/ai.js"></script>
+    <script src="js/enemies/combat.js"></script>
+    <script src="js/enemies/update.js"></script>
+    <script src="js/enemies/waves.js"></script>
+    
+    <!-- === Игровая логика === -->
     <script src="js/game/particles.js"></script>
     <script src="js/game/drones.js"></script>
     <script src="js/game/combat.js"></script>
-    <script src="js/game/waves.js"></script>
     <script src="js/game/lifecycle.js"></script>
     <script src="js/game/render.js"></script>
     
-    <!-- Сущности -->
+    <!-- === Сущности === -->
     <script src="js/player.js"></script>
     <script src="js/enemies.js"></script>
     
-    <!-- UI модули -->
+    <!-- === UI модули === -->
     <script src="js/ui/transitions.js"></script>
     <script src="js/ui/hud.js"></script>
     <script src="js/ui/levels.js"></script>
@@ -225,11 +239,19 @@
     <script src="js/ui/screens.js"></script>
     <script src="js/ui/menus.js"></script>
     
-    <!-- Магазин (использует UI функции) -->
+    <!-- === Магазин === -->
     <script src="js/shop.js"></script>
     
-    <!-- Точка входа -->
-    <script src="js/main.js"></script>
+    <!-- === MAIN модули === -->
+    <script src="js/main/config.js"></script>
+    <script src="js/main/dom-cache.js"></script>
+    <script src="js/main/helpers.js"></script>
+    <script src="js/main/sidebar.js"></script>
+    <script src="js/main/event-handlers.js"></script>
+    <script src="js/main/button-bindings.js"></script>
+    <script src="js/main/init.js"></script>
+    
+    <!-- === Точка входа === -->
     <script src="app.js"></script>
 </body>
 </html>
