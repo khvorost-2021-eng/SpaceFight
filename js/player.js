@@ -72,6 +72,7 @@ Game.updatePlayer = function() {
 Game.takeDamage = function() {
     Game.state.hp--;
     Game.state.invulnerable = 2;
+    Game.playDamageSound();
     
     if (Game.state.hp <= 0) {
         return true;
@@ -79,10 +80,58 @@ Game.takeDamage = function() {
     return false;
 };
 
+Game.healPlayer = function(amount) {
+    if (Game.state.hp < Game.state.maxHp) {
+        Game.state.hp = Math.min(Game.state.maxHp, Game.state.hp + amount);
+        Game.playHealSound();
+        
+        // Визуальный эффект лечения
+        for (let i = 0; i < 15; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 2 + 1;
+            Game.particles.push({
+                x: Game.player.x, y: Game.player.y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: Math.random() * 3 + 2,
+                life: 1, decay: 0.03,
+                color: '#00ff88'
+            });
+        }
+    }
+};
+
+// === СПАВН ДРОНОВ ПЕРЕД БОЕМ ===
+Game.spawnDrones = function() {
+    Game.drones.length = 0;
+    const selected = Game.playerData.selectedDrones || [];
+    
+    selected.forEach((droneId, index) => {
+        const type = Game.DRONE_TYPES[droneId];
+        if (!type) return;
+        
+        Game.drones.push({
+            id: droneId,
+            type: type,
+            x: Game.player.x,
+            y: Game.player.y,
+            rotation: 0,
+            hp: type.hp,
+            maxHp: type.hp,
+            orbitAngle: (index / selected.length) * Math.PI * 2,
+            shootTimer: 0,
+            healTimer: 0,
+            damageFlash: 0,
+            alive: true
+        });
+    });
+};
+
 Game.resetPlayer = function() {
     Game.player.x = Game.canvas.width / 2;
     Game.player.y = Game.canvas.height / 2;
     Game.player.rotation = 0;
+    Game.player.visible = true;
     Game.state.lastPlayerX = Game.player.x;
     Game.state.lastPlayerY = Game.player.y;
     Game.state.playerVX = 0;

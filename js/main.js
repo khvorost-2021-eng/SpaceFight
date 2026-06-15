@@ -9,11 +9,20 @@ Game.SKINS = [
 Game.init = async function() {
     await Promise.all([
         Game.initYandexSDK(),
-        Game.loadShips()
+        Game.loadShips(),
+        Game.loadDroneImages()
     ]);
     
     Game.showMainMenu();
     Game.gameLoop();
+    
+    const enableAudio = () => {
+        Game.initAudio();
+        document.removeEventListener('click', enableAudio);
+        document.removeEventListener('keydown', enableAudio);
+    };
+    document.addEventListener('click', enableAudio);
+    document.addEventListener('keydown', enableAudio);
     
     document.addEventListener('mousemove', (e) => {
         Game.mouse.x = e.clientX;
@@ -34,29 +43,76 @@ Game.init = async function() {
                 document.body.style.cursor = 'none';
             }
         }
+        // Стрелки ← → на экране выбора уровня
+        if (e.key === 'ArrowLeft' && Game.state.currentState === Game.STATE.LEVEL_SELECT) {
+            Game.levelPagePrev();
+        }
+        if (e.key === 'ArrowRight' && Game.state.currentState === Game.STATE.LEVEL_SELECT) {
+            Game.levelPageNext();
+        }
     });
     
+    // ГЛАВНОЕ МЕНЮ
     document.getElementById('arcadeBtn').onclick = () => Game.startGame('arcade');
-    document.getElementById('campaignBtn').onclick = () => Game.showLevelSelect();
-    document.getElementById('skinsBtn').onclick = () => Game.showSkinsScreen();
+    document.getElementById('levelsBtn').onclick = () => Game.showLevelSelect();
+    document.getElementById('profileBtn').onclick = () => Game.showProfileScreen();
+    document.getElementById('shopBtn').onclick = () => Game.showShopScreen();
     
-    document.getElementById('levelSelectBackBtn').onclick = () => Game.showMainMenu();
-    document.getElementById('backBtn').onclick = () => Game.showMainMenu();
-    
-    document.getElementById('restartBtn').onclick = () => {
-        if (Game.state.mode === 'arcade') Game.startGame('arcade');
-        else Game.startCampaignFromLevel(Game.state.level);
+    // ВЫБОР УРОВНЯ — стрелки пагинации
+    document.getElementById('levelPrevBtn').onclick = (e) => {
+        e.stopPropagation();
+        Game.levelPagePrev();
     };
-    document.getElementById('menuBtn').onclick = () => Game.showMainMenu();
+    document.getElementById('levelNextBtn').onclick = (e) => {
+        e.stopPropagation();
+        Game.levelPageNext();
+    };
+    document.getElementById('levelSelectBackBtn').onclick = () => Game.showMainMenu();
     
-    document.getElementById('nextLevelBtn').onclick = () => Game.nextLevel();
-    document.getElementById('levelCompleteMenuBtn').onclick = () => Game.showMainMenu();
+    // ПРОФИЛЬ
+    document.getElementById('profileBackBtn').onclick = () => Game.showMainMenu();
+    
+    // МАГАЗИН
+    document.getElementById('shopBackBtn').onclick = () => Game.showMainMenu();
+    document.querySelectorAll('.shop-tab').forEach(tab => {
+        tab.onclick = (e) => {
+            e.stopPropagation();
+            const tabName = tab.dataset.tab;
+            if (window.renderShopTabInternal) {
+                window.renderShopTabInternal(tabName);
+            }
+        };
+    });
+    
+    // СМЕРТЬ
+    document.getElementById('restartBtn').onclick = (e) => {
+        e.stopPropagation();
+        const mode = Game.state.mode;
+        const level = Game.state.level;
+        if (mode === 'arcade') Game.startGame('arcade');
+        else Game.startCampaignFromLevel(level);
+    };
+    document.getElementById('menuBtn').onclick = (e) => {
+        e.stopPropagation();
+        Game.showMainMenu();
+    };
+    
+    // ПОБЕДА
+    document.getElementById('nextLevelBtn').onclick = (e) => {
+        e.stopPropagation();
+        Game.nextLevel();
+    };
+    document.getElementById('levelCompleteMenuBtn').onclick = (e) => {
+        e.stopPropagation();
+        Game.showMainMenu();
+    };
     
     window.addEventListener('resize', () => {
         Game.canvas.width = window.innerWidth;
         Game.canvas.height = window.innerHeight;
     });
     
+    // Авто-стрельба
     setInterval(() => {
         const s = Game.state;
         if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
@@ -67,6 +123,7 @@ Game.init = async function() {
                 const gunY = Game.player.y + Math.sin(rotation) * gunOffset * side;
                 Game.bullets.push({ x: gunX, y: gunY, width: 4, height: 12 });
             }
+            Game.playShootSound();
         }
     }, 150);
 };

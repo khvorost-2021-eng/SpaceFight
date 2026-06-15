@@ -1,4 +1,3 @@
-// === СОСТОЯНИЯ ИИ ===
 const AI_STATE = {
     ENTERING: 'ENTERING',
     MANEUVERING: 'MANEUVERING',
@@ -57,7 +56,6 @@ Game.drawEnemy = function(enemy) {
     ctx.restore();
 };
 
-// === СОЗДАНИЕ ВРАГА ===
 Game.createEnemy = function(group, indexInGroup, totalInGroup) {
     const type = group.type;
     const params = ENEMY_PARAMS[type];
@@ -133,17 +131,12 @@ Game.createEnemy = function(group, indexInGroup, totalInGroup) {
     
     const enemy = {
         type: type,
-        x: startX,
-        y: startY,
-        rotation: 0,
-        targetRotation: 0,
+        x: startX, y: startY,
+        rotation: 0, targetRotation: 0,
         state: AI_STATE.ENTERING,
-        targetX: targetX,
-        targetY: targetY,
-        homeX: targetX,
-        homeY: targetY,
-        health: params.hp,
-        maxHealth: params.hp,
+        targetX: targetX, targetY: targetY,
+        homeX: targetX, homeY: targetY,
+        health: params.hp, maxHealth: params.hp,
         speed: params.speed * mods.speedMult,
         shootTimer: Math.random() * 30,
         shootInterval: shootInterval,
@@ -171,7 +164,6 @@ Game.createEnemy = function(group, indexInGroup, totalInGroup) {
     return enemy;
 };
 
-// === ЗАПУСК ВОЛНЫ ===
 Game.startWave = function(waveIndex) {
     const s = Game.state;
     const waveConfig = s.levelWaves[waveIndex];
@@ -212,43 +204,29 @@ Game.startWave = function(waveIndex) {
     });
     
     setTimeout(() => {
-        if (s.waveState === 'SPAWNING') {
-            s.waveState = 'ACTIVE';
-        }
+        if (s.waveState === 'SPAWNING') s.waveState = 'ACTIVE';
     }, delay + 500);
 };
 
 Game.spawnBoss = function() {
     const mods = Game.getLevelModifiers(Game.state.level, 'campaign');
     const boss = {
-        x: Game.canvas.width / 2,
-        y: -100,
-        rotation: 0,
-        targetRotation: 0,
-        type: 'boss',
-        state: AI_STATE.ENTERING,
-        targetX: Game.canvas.width / 2,
-        targetY: 150,
-        homeX: Game.canvas.width / 2,
-        homeY: 150,
+        x: Game.canvas.width / 2, y: -100,
+        rotation: 0, targetRotation: 0,
+        type: 'boss', state: AI_STATE.ENTERING,
+        targetX: Game.canvas.width / 2, targetY: 150,
+        homeX: Game.canvas.width / 2, homeY: 150,
         health: 40 + Game.state.level * 15,
         maxHealth: 40 + Game.state.level * 15,
         speed: 1 * mods.speedMult,
         shootTimer: 0,
         shootInterval: Math.max(25, 50 / mods.shootFreqMult),
-        bulletSpeed: 6,
-        accuracy: 0.95,
-        scoreValue: 50,
-        role: 'boss',
-        canShoot: true,
-        kamikaze: false,
+        bulletSpeed: 6, accuracy: 0.95, scoreValue: 50,
+        role: 'boss', canShoot: true, kamikaze: false,
         maneuverType: MANEUVER.CIRCLE,
-        maneuverTimer: 0,
-        maneuverPhase: 0,
-        stateTimer: 0,
-        attackDuration: 1000,
-        useLead: true,
-        bossAttackPhase: 0
+        maneuverTimer: 0, maneuverPhase: 0,
+        stateTimer: 0, attackDuration: 1000,
+        useLead: true, bossAttackPhase: 0
     };
     Game.enemies.push(boss);
 };
@@ -349,6 +327,9 @@ Game.updateEnemies = function() {
     const s = Game.state;
     const player = Game.player;
     
+    // Во время DYING враги продолжают двигаться, но не стреляют
+    const isDying = s.currentState === Game.STATE.DYING;
+    
     for (let i = Game.enemies.length - 1; i >= 0; i--) {
         const enemy = Game.enemies[i];
         enemy.stateTimer++;
@@ -373,10 +354,10 @@ Game.updateEnemies = function() {
             
             case AI_STATE.MANEUVERING: {
                 Game.updateManeuver(enemy);
-                Game.rotateTowards(enemy, player.x, player.y, 0.03);
+                if (!isDying) Game.rotateTowards(enemy, player.x, player.y, 0.03);
                 
                 const attackDelay = enemy.role === 'distractor' ? 60 : 120 + Math.random() * 60;
-                if (enemy.stateTimer > attackDelay) {
+                if (enemy.stateTimer > attackDelay && !isDying) {
                     enemy.state = AI_STATE.ATTACKING;
                     enemy.stateTimer = 0;
                 }
@@ -384,7 +365,7 @@ Game.updateEnemies = function() {
             }
             
             case AI_STATE.ATTACKING: {
-                Game.rotateTowards(enemy, player.x, player.y, 0.1);
+                if (!isDying) Game.rotateTowards(enemy, player.x, player.y, 0.1);
                 
                 if (enemy.type !== 'boss') {
                     const holdX = enemy.homeX + Math.sin(enemy.maneuverPhase * 2) * 20;
@@ -398,7 +379,8 @@ Game.updateEnemies = function() {
                     enemy.y += (bossY - enemy.y) * 0.02;
                 }
                 
-                if (enemy.canShoot) {
+                // Стрельба только если не dying
+                if (enemy.canShoot && !isDying) {
                     enemy.shootTimer++;
                     if (enemy.shootTimer >= enemy.shootInterval) {
                         if (enemy.type === 'boss') Game.bossShoot(enemy);
@@ -407,7 +389,7 @@ Game.updateEnemies = function() {
                     }
                 }
                 
-                if (enemy.stateTimer > enemy.attackDuration && enemy.type !== 'boss') {
+                if (enemy.stateTimer > enemy.attackDuration && enemy.type !== 'boss' && !isDying) {
                     enemy.state = AI_STATE.RETREATING;
                     enemy.stateTimer = 0;
                     enemy.targetX = enemy.x < Game.canvas.width / 2 ? Game.canvas.width + 100 : -100;
@@ -446,8 +428,8 @@ Game.updateEnemies = function() {
                 Game.rotateTowards(enemy, player.x, player.y, 0.15);
                 
                 enemy.maneuverPhase += 0.1;
-                const perpX = -dy / dist;
-                const perpY = dx / dist;
+                const perpX = -dy / (dist || 1);
+                const perpY = dx / (dist || 1);
                 enemy.x += perpX * Math.sin(enemy.maneuverPhase) * 2;
                 enemy.y += perpY * Math.sin(enemy.maneuverPhase) * 2;
                 break;
@@ -462,6 +444,7 @@ Game.updateEnemies = function() {
         }
     }
     
+    // Вражеские пули продолжают лететь даже при DYING
     for (let j = Game.enemyBullets.length - 1; j >= 0; j--) {
         const bullet = Game.enemyBullets[j];
         bullet.x += bullet.vx;
@@ -475,13 +458,10 @@ Game.updateEnemies = function() {
     }
 };
 
-// === ПРОВЕРКА ЗАВЕРШЕНИЯ ВОЛНЫ ===
 Game.checkWaveComplete = function() {
     const s = Game.state;
-    // Проверяем только в состоянии ACTIVE (не во время спавна)
     if (s.waveState !== 'ACTIVE') return;
     
-    // Если врагов не осталось — волна зачищена
     if (Game.enemies.length === 0) {
         s.waveState = 'CLEARED';
         s.waveTimer = 0;

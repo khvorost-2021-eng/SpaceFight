@@ -9,6 +9,9 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     
+    <div id="deathFadeOverlay"></div>
+    <div id="gameOverText" class="hidden"></div>
+    
     <div id="ui" class="hidden">
         <div id="score">Счёт: 0</div>
         <div id="hpContainer"></div>
@@ -20,25 +23,48 @@
         <div class="menu">
             <h1>Космический Шутер</h1>
             <div id="menuCoins">Монеты: 0</div>
+            <div id="menuLevel">Уровень пилота: 1</div>
             <button id="arcadeBtn">Бесконечный режим</button>
-            <button id="campaignBtn">Кампания</button>
-            <button id="skinsBtn">Скины</button>
+            <button id="levelsBtn">Уровни</button>
+            <button id="profileBtn">Профиль</button>
+            <button id="shopBtn">Магазин</button>
         </div>
     </div>
     
+    <!-- ЭКРАН ВЫБОРА УРОВНЯ (С ПАГИНАЦИЕЙ) -->
     <div id="levelSelectScreen" class="screen hidden">
         <div class="menu">
             <h1>Выбор уровня</h1>
+            <div id="levelPageIndicator" class="page-indicator">Страница 1 / 2</div>
             <div id="levelGrid" class="level-grid"></div>
+            <div class="level-pagination">
+                <button id="levelPrevBtn" class="nav-arrow nav-arrow-left">←</button>
+                <button id="levelNextBtn" class="nav-arrow nav-arrow-right">→</button>
+            </div>
             <button id="levelSelectBackBtn">Назад</button>
         </div>
     </div>
     
-    <div id="skinsScreen" class="screen hidden">
-        <div class="menu">
-            <h1>Скины</h1>
-            <div id="skinsGrid"></div>
-            <button id="backBtn">Назад</button>
+    <!-- ЭКРАН ПРОФИЛЯ -->
+    <div id="profileScreen" class="screen hidden">
+        <div class="menu profile-menu">
+            <h1>Профиль пилота</h1>
+            <div id="profileContent"></div>
+            <button id="profileBackBtn">Назад</button>
+        </div>
+    </div>
+    
+    <!-- МАГАЗИН (БЕЗ ВКЛАДКИ СНАРЯЖЕНИЯ) -->
+    <div id="shopScreen" class="screen hidden">
+        <div class="menu shop-menu">
+            <h1>Магазин</h1>
+            <div id="shopCoins">Монеты: 0</div>
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-tab="skins">Скины</button>
+                <button class="shop-tab" data-tab="drones">Дроны</button>
+            </div>
+            <div id="shopContent"></div>
+            <button id="shopBackBtn">Назад</button>
         </div>
     </div>
     
@@ -51,9 +77,10 @@
     
     <div id="deathScreen" class="screen hidden">
         <div class="menu">
-            <h1>Вы погибли</h1>
+            <h1>Игра окончена</h1>
             <p id="deathScore">Счёт: 0</p>
             <p id="deathCoins">Получено монет: 0</p>
+            <p id="deathXP">Получено опыта: 0</p>
             <button id="restartBtn">Заново</button>
             <button id="menuBtn">Главное меню</button>
         </div>
