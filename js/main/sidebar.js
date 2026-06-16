@@ -1,49 +1,57 @@
 // ==========================================
 // ИНИЦИАЛИЗАЦИЯ SIDEBAR
 // ==========================================
-
 function initSidebar() {
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
     if (sidebarBtns.length === 0) {
         console.warn('⚠️ Sidebar-кнопки не найдены');
         return;
     }
-    
+
     sidebarBtns.forEach(btn => {
-        const view = btn.dataset.view;
-        if (view) {
-            btn.addEventListener('click', () => {
-                console.log(`🎨 Sidebar: переключение на ${view}`);
-                
-                // Настройки пока заглушка
-                if (view === 'settings') {
-                    if (typeof switchView === 'function') {
-                        switchView('settings');
-                    }
-                    return;
-                }
-                
-                // Для остальных views
-                if (typeof switchView === 'function') {
-                    switchView(view);
-                } else {
-                    // Fallback на старые функции
-                    if (view === 'levels') safeCall(Game.showLevelSelect);
-                    else if (view === 'profile') safeCall(Game.showProfileScreen);
-                    else if (view === 'shop') safeCall(Game.showShopScreen);
-                    else if (view === 'home') {
-                        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-                        const homeView = document.getElementById('homeView');
-                        if (homeView) homeView.classList.add('active');
-                    }
+        btn.addEventListener('click', () => {
+            const view = btn.dataset.view;
+            if (!view) return;
+
+            console.log(`🎨 Sidebar клик: ${view}`);
+
+            // Скрываем все overlay-экраны
+            ['deathScreen', 'levelCompleteScreen', 'pauseScreen'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.style.display = 'none';
+                    el.style.pointerEvents = 'none';
                 }
             });
-        }
+
+            document.body.classList.remove('in-game');
+            document.body.classList.remove('showing-overlay');
+
+            switch(view) {
+                case 'home':
+                    if (typeof Game.showMainMenu === 'function') Game.showMainMenu();
+                    break;
+                case 'levels':
+                    if (typeof Game.showLevelSelect === 'function') Game.showLevelSelect();
+                    else if (typeof window.switchView === 'function') window.switchView('levels');
+                    break;
+                case 'profile':
+                    if (typeof Game.showProfileScreen === 'function') Game.showProfileScreen();
+                    else if (typeof window.switchView === 'function') window.switchView('profile');
+                    break;
+                case 'shop':
+                    if (typeof Game.showShopScreen === 'function') Game.showShopScreen();
+                    else if (typeof window.switchView === 'function') window.switchView('shop');
+                    break;
+                case 'settings':
+                    if (typeof window.switchView === 'function') window.switchView('settings');
+                    break;
+            }
+        });
     });
-    
-    console.log('✅ Sidebar инициализирован');
+
+    console.log('✅ Sidebar инициализирован — обработчики навешены на', sidebarBtns.length, 'кнопок');
 }
-
 window.initSidebar = initSidebar;
-
 console.log('✅ main/sidebar.js загружен');

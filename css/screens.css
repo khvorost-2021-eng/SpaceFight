@@ -1,315 +1,39 @@
-/* ============================================
-   ЭКРАНЫ МЕНЮ И ПЕРЕХОДЫ
-   ============================================ */
-
-/* ============================================
-   ЭКРАНЫ МЕНЮ И ПЕРЕХОДЫ
-   ============================================ */
-
 .screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: transparent; /* ПРОЗРАЧНЫЙ фон — звёзды видны */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    z-index: 1000;
-    pointer-events: auto;
-    opacity: 1;
-    transform: scale(1);
-    transition: opacity 300ms ease-out, transform 300ms ease-out;
-    overflow-y: auto;
-    padding: 40px 20px;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: transparent; display: flex; justify-content: center; align-items: center;
+    flex-direction: column; z-index: 2000; pointer-events: auto; overflow-y: auto; padding: 40px 20px;
 }
+#deathScreen, #levelCompleteScreen, #pauseScreen { background: rgba(0, 0, 20, 0.95); }
 
-.screen.fade-out {
-    opacity: 0;
-    transform: scale(0.95);
-    pointer-events: none;
+.menu, .death-menu, .complete-menu, .pause-menu {
+    text-align: center; color: #0ff; max-width: 600px; width: 90%; padding: 40px;
+    background: rgba(10, 15, 30, 0.95); border: 2px solid rgba(0, 255, 255, 0.3);
+    border-radius: 20px; box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
+    display: flex; flex-direction: column; align-items: center; gap: 15px;
 }
-
-.screen.hidden {
-    display: none !important;
+.menu h1, .death-menu h1, .complete-menu h1, .pause-menu h1 {
+    font-size: 48px; margin-bottom: 10px; color: #0ff; text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
 }
+.death-menu h1 { color: #ff0066; text-shadow: 0 0 20px rgba(255, 0, 102, 0.8); }
+.complete-menu h1 { color: #00ff88; text-shadow: 0 0 20px rgba(0, 255, 136, 0.8); }
+.menu p, .death-menu p, .complete-menu p, .pause-menu p { font-size: 24px; color: #fff; margin: 5px 0; }
 
-/* Overlay-экраны (смерть, победа, пауза) — непрозрачные */
-#deathScreen,
-#levelCompleteScreen,
-#pauseScreen {
-    background: rgba(0, 0, 20, 0.95);
+.menu button, .death-menu button, .complete-menu button, .pause-menu button {
+    display: block; width: 100%; max-width: 400px; margin: 10px auto; padding: 20px 40px;
+    font-size: 22px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer;
+    transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px;
 }
+#restartBtn { background: linear-gradient(135deg, #00ffff 0%, #0088ff 100%); color: #000; box-shadow: 0 0 30px rgba(0, 255, 255, 0.5); }
+#restartBtn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(0, 255, 255, 0.8); }
+#nextLevelBtn { background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%); color: #000; box-shadow: 0 0 30px rgba(0, 255, 136, 0.5); }
+#nextLevelBtn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(0, 255, 136, 0.8); }
+#menuBtn, #levelCompleteMenuBtn, #pauseMenuBtn { background: rgba(255,255,255,0.1); color: #fff; border: 2px solid rgba(255,255,255,0.3); }
+#menuBtn:hover, #levelCompleteMenuBtn:hover, #pauseMenuBtn:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.6); transform: scale(1.05); }
+#pauseResumeBtn { background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%); color: #000; box-shadow: 0 0 30px rgba(0, 255, 136, 0.5); }
+#pauseResumeBtn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(0, 255, 136, 0.8); }
 
-.menu {
-    text-align: center;
-    color: #0ff;
-    max-width: 1000px;
-    padding: 20px;
-    width: 100%;
-    margin: auto;
-}
-
-.menu h1 {
-    font-size: 48px;
-    margin-bottom: 20px;
-    text-shadow: 0 0 20px #0ff;
-}
-
-.menu p {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-/* ============================================
-   ПРИНУДИТЕЛЬНОЕ СКРЫТИЕ OVERLAY-ЭКРАНОВ
-   Когда есть класс .hidden - скрываем ЖЕЛЕЗНО
-   ============================================ */
-
-#deathScreen.hidden,
-#levelCompleteScreen.hidden,
-#pauseScreen.hidden {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    z-index: -1 !important;
-    transform: scale(0.95) !important;
-}
-
-/* Когда overlay показан (без .hidden) */
-#deathScreen:not(.hidden),
-#levelCompleteScreen:not(.hidden),
-#pauseScreen:not(.hidden) {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    z-index: 2000 !important;
-}
-
-/* ============================================
-   STATE-BASED: СКРЫТИЕ МЕНЮ ВО ВРЕМЯ ИГРЫ
-   ============================================ */
-
-body.in-game #mainMenu,
-body.in-game .sidebar,
-body.in-game .main-content {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    z-index: -1 !important;
-}
-
-/* ============================================
-   STATE-BASED: СКРЫТИЕ HUD ПРИ ПОКАЗЕ OVERLAY
-   ============================================ */
-
-body.showing-overlay #ui {
-    opacity: 0 !important;
-    pointer-events: none !important;
-    visibility: hidden !important;
-}
-
-/* Плавное появление/исчезновение HUD */
-#ui {
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-/* ============================================
-   СТИЛИ КОНТЕНТА OVERLAY-ЭКРАНОВ
-   ============================================ */
-
-.death-menu,
-.complete-menu,
-.pause-menu {
-    text-align: center;
-    color: #0ff;
-    max-width: 600px;
-    padding: 40px;
-    background: rgba(0, 0, 20, 0.95);
-    border: 2px solid rgba(0, 255, 255, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 0 40px rgba(0, 255, 255, 0.3);
-    z-index: 2001;
-    position: relative;
-}
-
-.death-menu h1,
-.complete-menu h1,
-.pause-menu h1 {
-    font-size: 48px;
-    margin-bottom: 30px;
-    color: #0ff;
-    text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
-}
-
-.death-menu p,
-.complete-menu p,
-.pause-menu p {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.death-menu button,
-.complete-menu button,
-.pause-menu button {
-    margin: 15px auto !important;
-    display: block !important;
-    opacity: 1 !important;
-    transform: none !important;
-    animation: none !important;
-}
-
-/* ============================================
-   ЭКРАНЫ СМЕРТИ И ПОБЕДЫ - ЦЕНТРИРОВАНИЕ
-   ============================================ */
-
-#deathScreen,
-#levelCompleteScreen {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 20, 0.95);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-#deathScreen.active,
-#levelCompleteScreen.active {
-    display: flex !important;
-}
-
-#deathScreen.hidden,
-#levelCompleteScreen.hidden {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
-/* Контейнер кнопок */
-.death-menu,
-.complete-menu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    text-align: center;
-    padding: 40px;
-    background: rgba(10, 15, 30, 0.95);
-    border: 2px solid rgba(0, 255, 255, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
-    max-width: 600px;
-    width: 90%;
-}
-
-.death-menu h1,
-.complete-menu h1 {
-    font-size: 48px;
-    color: #ff0066;
-    text-shadow: 0 0 20px rgba(255, 0, 102, 0.8);
-    margin-bottom: 20px;
-}
-
-.complete-menu h1 {
-    color: #00ff88;
-    text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
-}
-
-.death-menu p,
-.complete-menu p {
-    font-size: 24px;
-    color: #fff;
-    margin: 10px 0;
-}
-
-/* Кнопки на экранах смерти/победы */
-.death-menu button,
-.complete-menu button {
-    display: block;
-    width: 100%;
-    max-width: 400px;
-    margin: 10px auto;
-    padding: 20px 40px;
-    font-size: 22px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-/* Кнопка "Заново" */
-#restartBtn {
-    background: linear-gradient(135deg, #00ffff 0%, #0088ff 100%);
-    color: #000;
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-}
-
-#restartBtn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 50px rgba(0, 255, 255, 0.8);
-}
-
-/* Кнопка "Следующий уровень" */
-#nextLevelBtn {
-    background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
-    color: #000;
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
-}
-
-#nextLevelBtn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 50px rgba(0, 255, 136, 0.8);
-}
-
-/* Кнопка "Главное меню" */
-#menuBtn,
-#levelCompleteMenuBtn {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-#menuBtn:hover,
-#levelCompleteMenuBtn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: scale(1.05);
-}
-
-/* Скрываем кнопку "Следующий уровень" когда не нужна */
-#nextLevelBtn.hidden {
-    display: none !important;
-}
-
-/* Адаптивность */
 @media (max-width: 768px) {
-    .death-menu h1,
-    .complete-menu h1 {
-        font-size: 36px;
-    }
-    
-    .death-menu p,
-    .complete-menu p {
-        font-size: 18px;
-    }
-    
-    .death-menu button,
-    .complete-menu button {
-        font-size: 18px;
-        padding: 15px 30px;
-    }
+    .menu h1, .death-menu h1, .complete-menu h1, .pause-menu h1 { font-size: 32px; }
+    .menu p, .death-menu p, .complete-menu p, .pause-menu p { font-size: 18px; }
+    .menu button, .death-menu button, .complete-menu button, .pause-menu button { font-size: 18px; padding: 16px 24px; min-height: 52px; }
 }

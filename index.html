@@ -5,253 +5,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DRONIX - Космический Шутер</title>
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/hud.css">
+    <link rel="stylesheet" href="css/buttons.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/main-content.css">
+    <link rel="stylesheet" href="css/screens.css">
+    <link rel="stylesheet" href="css/hud.css">
+    <link rel="stylesheet" href="css/overlays.css">
     <link rel="stylesheet" href="css/levels.css">
     <link rel="stylesheet" href="css/shop.css">
     <link rel="stylesheet" href="css/profile.css">
-    <link rel="stylesheet" href="css/screens.css">
-    <link rel="stylesheet" href="css/overlays.css">
     <link rel="stylesheet" href="css/utilities.css">
     <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
+
     <canvas id="gameCanvas"></canvas>
-    
+
+    <!-- Анимации смерти (чистятся при возврате в меню) -->
     <div id="deathFadeOverlay"></div>
-    <div id="gameOverText" class="hidden"></div>
-    
-    <!-- ИГРОВОЙ HUD (виден только в игре) -->
-    <div id="ui" class="hidden">
+    <div id="gameOverText" class="hidden">ИГРА ОКОНЧЕНА</div>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <div class="sidebar-logo"><div class="logo-icon">🛸</div></div>
+        <button class="sidebar-btn active" data-view="home" title="Главная"><span class="btn-icon">🏠</span></button>
+        <button class="sidebar-btn" data-view="levels" title="Уровни"><span class="btn-icon">🗺️</span></button>
+        <button class="sidebar-btn" data-view="profile" title="Профиль"><span class="btn-icon">👤</span></button>
+        <button class="sidebar-btn" data-view="shop" title="Магазин"><span class="btn-icon">🛒</span></button>
+        <button class="sidebar-btn" data-view="settings" title="Настройки"><span class="btn-icon">⚙️</span></button>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- HOME -->
+        <div id="homeView" class="view active">
+            <div class="hero-section">
+                <h1 class="game-title">DRONIX</h1>
+                <p class="game-subtitle">Космический Шутер</p>
+                <div class="hero-stats">
+                    <div class="stat-box"><div class="stat-label">Уровень</div><div id="menuLevel" class="stat-value">1</div></div>
+                    <div class="stat-box"><div class="stat-label">Монеты</div><div id="menuCoins" class="stat-value gold">0</div></div>
+                </div>
+                <div class="hero-buttons">
+                    <button id="arcadeBtn" class="primary-btn"><span class="btn-text">🚀 БЕСКОНЕЧНЫЙ РЕЖИМ</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEVELS -->
+        <div id="levelsView" class="view">
+            <div class="view-header">
+                <h2>Выбор уровня</h2>
+                <div id="levelPageIndicator" class="page-indicator">Страница 1 / 2</div>
+            </div>
+            <div id="levelGrid" class="level-grid"></div>
+            <div class="level-pagination">
+                <button id="levelPrevBtn" class="nav-arrow" disabled>‹</button>
+                <button id="levelNextBtn" class="nav-arrow">›</button>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="profileView" class="view">
+            <div class="view-header"><h2>Профиль пилота</h2></div>
+            <div id="profileContent" class="profile-menu"></div>
+        </div>
+
+        <!-- SHOP -->
+        <div id="shopView" class="view">
+            <div class="view-header">
+                <h2>Магазин</h2>
+                <div id="shopCoins" class="coins-display">Монеты: 0</div>
+            </div>
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-tab="skins">Скины</button>
+                <button class="shop-tab" data-tab="drones">Дроны</button>
+            </div>
+            <div id="shopContent"></div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settingsView" class="view">
+            <div class="view-header"><h2>Настройки</h2></div>
+            <div class="placeholder-content"><div class="placeholder-icon">⚙️</div><p>Скоро</p></div>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="ui" style="display:none;">
         <div id="score">Счёт: 0</div>
-        <div id="hpContainer"></div>
         <div id="coinsDisplay">Монеты: 0</div>
+        <div id="hpContainer"></div>
         <div id="levelDisplay"></div>
     </div>
-    
-    <!-- ГЛАВНОЕ МЕНЮ (левая панель + основной контент) -->
-    <div id="mainMenu" class="screen">
-        <!-- ЛЕВАЯ ПАНЕЛЬ -->
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <svg viewBox="0 0 40 40" class="logo-icon">
-                    <circle cx="20" cy="20" r="15" fill="none" stroke="#0ff" stroke-width="2"/>
-                    <circle cx="20" cy="20" r="8" fill="none" stroke="#0ff" stroke-width="1.5"/>
-                    <circle cx="20" cy="20" r="3" fill="#0ff"/>
-                </svg>
-            </div>
-            
-            <button class="sidebar-btn active" data-view="home" title="Главная">
-                <svg viewBox="0 0 24 24" class="btn-icon">
-                    <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            
-            <button class="sidebar-btn" data-view="levels" title="Уровни">
-                <svg viewBox="0 0 24 24" class="btn-icon">
-                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            
-            <button class="sidebar-btn" data-view="profile" title="Профиль">
-                <svg viewBox="0 0 24 24" class="btn-icon">
-                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            
-            <button class="sidebar-btn" data-view="shop" title="Магазин">
-                <svg viewBox="0 0 24 24" class="btn-icon">
-                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            
-            <button class="sidebar-btn" data-view="settings" title="Настройки">
-                <svg viewBox="0 0 24 24" class="btn-icon">
-                    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-        </div>
-        
-        <!-- ОСНОВНОЙ КОНТЕНТ -->
-        <div class="main-content">
-            <!-- ГЛАВНАЯ (HOME) -->
-            <div id="homeView" class="view active">
-                <div class="hero-section">
-                    <h1 class="game-title">DRONIX</h1>
-                    <p class="game-subtitle">Космический Шутер</p>
-                    <div class="hero-stats">
-                        <div class="stat-box">
-                            <div class="stat-label">Уровень</div>
-                            <div class="stat-value" id="menuLevel">1</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Монеты</div>
-                            <div class="stat-value gold" id="menuCoins">0</div>
-                        </div>
-                    </div>
-                    <div class="hero-buttons">
-                        <button id="arcadeBtn" class="primary-btn">
-                            <span class="btn-text">БЕСКОНЕЧНЫЙ РЕЖИМ</span>
-                            <svg class="btn-arrow" viewBox="0 0 24 24">
-                                <path d="M13 7l5 5m0 0l-5 5m5-5H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- УРОВНИ -->
-            <div id="levelsView" class="view">
-                <div class="view-header">
-                    <h2>Выбор уровня</h2>
-                    <div id="levelPageIndicator" class="page-indicator">Страница 1 / 2</div>
-                </div>
-                <div id="levelGrid" class="level-grid"></div>
-                <div class="level-pagination">
-                    <button id="levelPrevBtn" class="nav-arrow nav-arrow-left">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M15 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <button id="levelNextBtn" class="nav-arrow nav-arrow-right">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- ПРОФИЛЬ -->
-            <div id="profileView" class="view">
-                <div class="view-header">
-                    <h2>Профиль пилота</h2>
-                </div>
-                <div id="profileContent"></div>
-            </div>
-            
-            <!-- МАГАЗИН -->
-            <div id="shopView" class="view">
-                <div class="view-header">
-                    <h2>Магазин</h2>
-                    <div id="shopCoins" class="coins-display">Монеты: 0</div>
-                </div>
-                <div class="shop-tabs">
-                    <button class="shop-tab active" data-tab="skins">Скины</button>
-                    <button class="shop-tab" data-tab="drones">Дроны</button>
-                </div>
-                <div id="shopContent"></div>
-            </div>
-            
-            <!-- НАСТРОЙКИ (ЗАГЛУШКА) -->
-            <div id="settingsView" class="view">
-                <div class="view-header">
-                    <h2>Настройки</h2>
-                </div>
-                <div class="placeholder-content">
-                    <svg viewBox="0 0 24 24" class="placeholder-icon">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <p>Скоро</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- КНОПКА ПАУЗЫ ДЛЯ МОБИЛЬНЫХ (видна только на телефонах во время игры) -->
-    <button id="mobilePauseBtn" class="mobile-pause-btn hidden" aria-label="Пауза">
-        <svg viewBox="0 0 24 24" width="28" height="28">
-            <rect x="6" y="5" width="4" height="14" fill="currentColor"/>
-            <rect x="14" y="5" width="4" height="14" fill="currentColor"/>
-        </svg>
-    </button>
-    
-    <!-- ЭКРАН ПАУЗЫ -->
-    <div id="pauseScreen" class="screen hidden">
+
+    <!-- MOBILE PAUSE -->
+    <button id="mobilePauseBtn" class="mobile-pause-btn" style="display:none;">⏸</button>
+
+    <!-- OVERLAYS -->
+    <div id="pauseScreen" class="screen" style="display:none;">
         <div class="pause-menu">
-            <h1>Пауза</h1>
+            <h1>⏸ ПАУЗА</h1>
             <p>Нажмите ESC чтобы продолжить</p>
-            <button id="pauseResumeBtn" class="primary-btn">Продолжить</button>
-            <button id="pauseMenuBtn" class="secondary-btn">Выйти в меню</button>
+            <button id="pauseResumeBtn">▶ Продолжить</button>
+            <button id="pauseMenuBtn">🏠 Выйти в меню</button>
         </div>
     </div>
-    
-    <!-- ЭКРАН СМЕРТИ -->
-    <div id="deathScreen" class="screen hidden">
+
+    <div id="deathScreen" class="screen" style="display:none;">
         <div class="death-menu">
-            <h1>Игра окончена</h1>
+            <h1>💀 ИГРА ОКОНЧЕНА</h1>
             <p id="deathScore">Счёт: 0</p>
             <p id="deathCoins">Получено монет: 0</p>
             <p id="deathXP">Получено опыта: 0</p>
-            <button id="restartBtn">Заново</button>
-            <button id="menuBtn">Главное меню</button>
+            <button id="restartBtn">🔄 Заново</button>
+            <button id="menuBtn">🏠 Главное меню</button>
         </div>
     </div>
-    
-    <!-- ЭКРАН ПОБЕДЫ -->
-    <div id="levelCompleteScreen" class="screen hidden">
+
+    <div id="levelCompleteScreen" class="screen" style="display:none;">
         <div class="complete-menu">
-            <h1>Уровень пройден!</h1>
+            <h1>🏆 УРОВЕНЬ ПРОЙДЕН!</h1>
             <p id="levelCompleteInfo"></p>
-            <button id="nextLevelBtn">Следующий уровень</button>
-            <button id="levelCompleteMenuBtn">Главное меню</button>
+            <button id="nextLevelBtn">➡ Следующий уровень</button>
+            <button id="levelCompleteMenuBtn">🏠 Главное меню</button>
         </div>
     </div>
-    
-    <script src="https://yandex.ru/games/sdk/v2"></script>
+
+    <!-- SCRIPTS -->
+    <script src="https://yandex.ru/games/sdk/2" onerror="console.log('Yandex SDK не загружен')"></script>
     <script src="lang.js"></script>
-    
-    <!-- === STATE модули === -->
     <script src="js/state/core.js"></script>
     <script src="js/state/player-data.js"></script>
-    <script src="js/state/drones-config.js"></script>
-    <script src="js/state/assets.js"></script>
-    <script src="js/state/audio.js"></script>
-    <script src="js/state/levels-config.js"></script>
     <script src="js/state/sdk.js"></script>
-    
-    <!-- === ENEMIES модули === -->
+    <script src="js/state/audio.js"></script>
+    <script src="js/state/assets.js"></script>
+    <script src="js/state/drones-config.js"></script>
+    <script src="js/state/levels-config.js"></script>
+    <script src="js/main/helpers.js"></script>
+    <script src="js/main/dom-cache.js"></script>
+    <script src="js/main/config.js"></script>
+    <script src="js/main/event-handlers.js"></script>
+    <script src="js/main/sidebar.js"></script>
+    <script src="js/main/button-bindings.js"></script>
+    <script src="js/main/init.js"></script>
     <script src="js/enemies/constants.js"></script>
-    <script src="js/enemies/rendering.js"></script>
     <script src="js/enemies/creation.js"></script>
     <script src="js/enemies/ai.js"></script>
     <script src="js/enemies/combat.js"></script>
+    <script src="js/enemies/rendering.js"></script>
     <script src="js/enemies/update.js"></script>
     <script src="js/enemies/waves.js"></script>
-    
-    <!-- === Игровая логика === -->
     <script src="js/game/particles.js"></script>
-    <script src="js/game/drones.js"></script>
     <script src="js/game/combat.js"></script>
-    <script src="js/game/lifecycle.js"></script>
+    <script src="js/game/drones.js"></script>
     <script src="js/game/render.js"></script>
-    
-    <!-- === Сущности === -->
+    <script src="js/game/lifecycle.js"></script>
+    <script src="js/game/waves.js"></script>
     <script src="js/player.js"></script>
-    <script src="js/enemies.js"></script>
-    
-    <!-- === UI модули === -->
-    <script src="js/ui/transitions.js"></script>
     <script src="js/ui/hud.js"></script>
     <script src="js/ui/levels.js"></script>
     <script src="js/ui/profile.js"></script>
-    <script src="js/ui/screens.js"></script>
+    <script src="js/ui/shop.js"></script>
     <script src="js/ui/menus.js"></script>
-    
-    <!-- === Магазин === -->
-    <script src="js/shop.js"></script>
-    
-    <!-- === MAIN модули === -->
-    <script src="js/main/config.js"></script>
-    <script src="js/main/dom-cache.js"></script>
-    <script src="js/main/helpers.js"></script>
-    <script src="js/main/sidebar.js"></script>
-    <script src="js/main/event-handlers.js"></script>
-    <script src="js/main/button-bindings.js"></script>
-    <script src="js/main/init.js"></script>
-    
-    <!-- === Точка входа === -->
+    <script src="js/ui/screens.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

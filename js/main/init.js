@@ -1,74 +1,45 @@
 // ==========================================
 // ГЛАВНАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ
 // ==========================================
-
 Game.init = async function() {
     console.log('🟢 Game.init() запущен');
-    
-    // Кэшируем DOM-элементы
-    if (typeof cacheDOMElements === 'function') {
-        cacheDOMElements();
-    }
-    
-    // === ЗАГРУЗКА АССЕТОВ ===
+
+    if (typeof cacheDOMElements === 'function') cacheDOMElements();
+
     try {
         console.log('📦 Загрузка SDK и ассетов...');
-        await Promise.all([
-            Game.initYandexSDK(),
-            Game.loadShips(),
-            Game.loadDroneImages()
-        ]);
+        await Promise.all([Game.initYandexSDK(), Game.loadShips(), Game.loadDroneImages()]);
         console.log('✅ Ассеты загружены');
-    } catch (e) {
-        console.error('❌ Ошибка загрузки ассетов:', e);
-    }
-    
-    // === ПОКАЗ ГЛАВНОГО МЕНЮ ===
+    } catch (e) { console.error('❌ Ошибка загрузки ассетов:', e); }
+
     try {
         console.log('🎨 Показ главного меню...');
-        safeCall(Game.showMainMenu);
-        console.log('✅ Меню показано');
-    } catch (e) {
-        console.error('❌ Ошибка показа меню:', e);
-    }
-    
-    // === ЗАПУСК ИГРОВОГО ЦИКЛА ===
-    try {
-        console.log('🔄 Запуск игрового цикла...');
-        safeCall(Game.gameLoop);
-        console.log('✅ Цикл запущен');
-    } catch (e) {
-        console.error('❌ Ошибка запуска цикла:', e);
-    }
-    
-    // === НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ===
-    if (typeof setupEventHandlers === 'function') {
-        setupEventHandlers();
-    }
-    
-    // === ПРИВЯЗКА КНОПОК ===
-    if (typeof bindButtons === 'function') {
-        bindButtons();
-    }
-    
-    // === ИНИЦИАЛИЗАЦИЯ SIDEBAR ===
-    if (typeof initSidebar === 'function') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initSidebar);
-        } else {
-            initSidebar();
+        if (typeof Game.showMainMenu === 'function') {
+            Game.showMainMenu();
         }
+        console.log('✅ Меню показано');
+    } catch (e) { console.error('❌ Ошибка показа меню:', e); }
+
+    try {
+        if (typeof Game.gameLoop === 'function') Game.gameLoop();
+    } catch (e) { console.error('❌ Ошибка запуска цикла:', e); }
+
+    if (typeof setupEventHandlers === 'function') setupEventHandlers();
+    if (typeof bindButtons === 'function') bindButtons();
+
+    // 🔧 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: проверяем window.initSidebar, а не локальную
+    if (typeof window.initSidebar === 'function') {
+        console.log('🔧 Вызов window.initSidebar()...');
+        window.initSidebar();
+    } else {
+        console.error('❌ window.initSidebar НЕ НАЙДЕНА! Sidebar кнопки не будут работать!');
     }
-    
-    console.log('✅ Все обработчики привязаны');
-    
-    // === ОБРАБОТКА RESIZE ===
+
     window.addEventListener('resize', () => {
         Game.canvas.width = window.innerWidth;
         Game.canvas.height = window.innerHeight;
     });
-    
-    // === АВТО-СТРЕЛЬБА ИГРОКА ===
+
     setInterval(() => {
         const s = Game.state;
         if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
@@ -82,8 +53,7 @@ Game.init = async function() {
             safeCall(Game.playShootSound);
         }
     }, 150);
-    
+
     console.log('🎉 Инициализация завершена!');
 };
-
 console.log('✅ main/init.js загружен');

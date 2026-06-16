@@ -1,442 +1,58 @@
-/* ============================================
-МОБИЛЬНАЯ АДАПТАЦИЯ
-============================================ */
-/* Кнопка паузы для мобильных — скрыта по умолчанию */
 .mobile-pause-btn {
-    position: fixed;
-    top: 80px;           /* Ниже HUD (Счёт/Монеты сверху) */
-    right: 12px;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1.5px solid rgba(0, 255, 255, 0.4);
-    border-radius: 50%;
-    color: #0ff;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 1500;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    position: fixed; top: 15px; right: 15px; width: 44px; height: 44px; font-size: 20px;
+    background: rgba(0, 0, 0, 0.6); border: 1.5px solid rgba(0, 255, 255, 0.4); border-radius: 50%;
+    color: #0ff; justify-content: center; align-items: center; cursor: pointer; z-index: 1500;
+    transition: all 0.2s ease; box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
+.mobile-pause-btn:active { transform: scale(0.92); background: rgba(0, 255, 255, 0.3); }
+* { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+body { touch-action: none; overscroll-behavior: none; }
 
-.mobile-pause-btn:active {
-    transform: scale(0.92);
-    background: rgba(0, 255, 255, 0.3);
-}
-
-.mobile-pause-btn.hidden {
-    display: none !important;
-}
-
-/* Отключаем выделение текста и тап-подсветку на мобильных */
-* {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-}
-
-body {
-    touch-action: none;
-    overscroll-behavior: none;
-}
-
-/* ============================================
-АДАПТИВНОСТЬ: ПЛАНШЕТЫ И ТЕЛЕФОНЫ
-============================================ */
 @media (max-width: 768px) {
-    /* Показываем кнопку паузы на мобильных во время игры */
-    body.in-game .mobile-pause-btn:not(.hidden) {
-        display: flex;
-    }
-
-    /* Сужаем sidebar */
-    .sidebar {
-        width: 60px;
-        padding: 15px 0;
-        gap: 10px;
-    }
-
-    .sidebar-logo {
-        width: 44px;
-        height: 44px;
-        margin-bottom: 15px;
-    }
-
-    .sidebar-btn {
-        width: 44px;
-        height: 44px;
-    }
-
-    .btn-icon {
-        width: 24px;
-        height: 24px;
-    }
-
-    /* Сдвигаем main-content */
-    .main-content {
-        left: 60px;
-        padding: 20px 15px;
-    }
-
-    /* Заголовок DRONIX меньше */
-    .game-title {
-        font-size: 64px;
-        letter-spacing: 4px;
-    }
-
-    .game-subtitle {
-        font-size: 16px;
-        letter-spacing: 2px;
-    }
-
-    /* Статистика в столбик */
-    .hero-stats {
-        flex-direction: column;
-        gap: 15px;
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .stat-box {
-        width: 100%;
-        padding: 15px 20px;
-    }
-
-    /* Кнопки крупнее для пальцев */
-    .primary-btn,
-    .secondary-btn {
-        padding: 18px 30px;
-        font-size: 16px;
-        min-height: 56px;
-        width: 100%;
-        max-width: 320px;
-    }
-
-    /* Заголовки секций меньше */
-    .view-header h2 {
-        font-size: 24px;
-    }
-
-    /* КАРТОЧКИ УРОВНЕЙ: 3 В РЯД */
-    .level-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-
-    .level-card {
-        font-size: 28px;
-    }
-
-    .level-card-subtitle {
-        font-size: 9px;
-    }
-
-    /* Слоты дронов: 3 в ряд */
-    .slots-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    /* Магазин: карточки крупнее */
-    .shop-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-
-    .shop-card {
-        padding: 12px;
-    }
-
-    .shop-card-preview {
-        width: 80px;
-        height: 80px;
-    }
-
-    /* Вкладки магазина крупнее */
-    .shop-tab {
-        padding: 14px 16px !important;
-        font-size: 15px !important;
-    }
-
-    /* Профиль: компактный */
-    .profile-top {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .profile-identity {
-        flex-direction: column;
-    }
-
-    .profile-avatar {
-        width: 70px;
-        height: 70px;
-        font-size: 36px;
-    }
-
-    .profile-name {
-        font-size: 22px;
-    }
-
-    .profile-name-rank {
-        text-align: center;
-    }
-
-    .profile-level-value {
-        font-size: 28px;
-    }
-
-    .profile-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* Экраны смерти/победы */
-    .death-menu,
-    .complete-menu,
-    .pause-menu {
-        padding: 25px 20px;
-        max-width: 90%;
-    }
-
-    .death-menu h1,
-    .complete-menu h1,
-    .pause-menu h1 {
-        font-size: 32px;
-        margin-bottom: 20px;
-    }
-
-    .death-menu p,
-    .complete-menu p,
-    .pause-menu p {
-        font-size: 16px;
-        margin-bottom: 12px;
-    }
-
-    .death-menu button,
-    .complete-menu button,
-    .pause-menu button {
-        font-size: 16px;
-        padding: 16px 24px;
-        min-height: 52px;
-        width: 100%;
-        max-width: 280px;
-    }
+    .sidebar { width: 60px; padding: 15px 0; gap: 10px; }
+    .sidebar-logo { width: 44px; height: 44px; margin-bottom: 15px; }
+    .sidebar-btn { width: 44px; height: 44px; }
+    .btn-icon { width: 24px; height: 24px; }
+    .main-content { left: 60px; padding: 20px 15px; }
+    .game-title { font-size: 64px !important; letter-spacing: 4px; }
+    .game-subtitle { font-size: 16px; letter-spacing: 2px; }
+    .hero-stats { flex-direction: column; gap: 15px; width: 100%; max-width: 300px; }
+    .stat-box { width: 100%; padding: 15px 20px; }
+    .primary-btn { padding: 18px 30px; font-size: 16px; min-height: 56px; width: 100%; max-width: 320px; }
+    .view-header h2 { font-size: 24px; }
+    .level-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .level-card { font-size: 28px; }
+    .boss-skull { font-size: 32px; }
+    .boss-label { font-size: 9px; letter-spacing: 1px; }
+    .slots-grid { grid-template-columns: repeat(3, 1fr); }
+    .shop-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .shop-card { padding: 12px; }
+    .shop-card-preview { width: 80px; height: 80px; }
+    .shop-tab { padding: 14px 16px !important; font-size: 15px !important; }
+    .profile-top { flex-direction: column; text-align: center; }
+    .profile-identity { flex-direction: column; }
+    .profile-avatar { width: 70px; height: 70px; font-size: 36px; }
+    .profile-name { font-size: 22px; }
+    .profile-level-value { font-size: 28px; }
+    .profile-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
-/* ============================================
-МАЛЕНЬКИЕ ТЕЛЕФОНЫ (< 400px)
-============================================ */
 @media (max-width: 400px) {
-    .sidebar {
-        width: 52px;
-    }
-
-    .sidebar-btn {
-        width: 38px;
-        height: 38px;
-    }
-
-    .btn-icon {
-        width: 20px;
-        height: 20px;
-    }
-
-    .main-content {
-        left: 52px;
-        padding: 15px 10px;
-    }
-
-    .game-title {
-        font-size: 48px;
-    }
-
-    .level-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-    }
-
-    .level-card {
-        font-size: 22px;
-    }
+    .sidebar { width: 52px; }
+    .sidebar-btn { width: 38px; height: 38px; }
+    .btn-icon { width: 20px; height: 20px; }
+    .main-content { left: 52px; padding: 15px 10px; }
+    .game-title { font-size: 48px !important; }
+    .level-card { font-size: 22px; }
 }
-
-/* ============================================
-ЛАНДШАФТНАЯ ОРИЕНТАЦИЯ НА ТЕЛЕФОНАХ
-============================================ */
 @media (max-height: 500px) and (orientation: landscape) {
-    .sidebar {
-        flex-direction: row;
-        width: 100%;
-        height: 60px;
-        padding: 0 10px;
-        border-right: none;
-        border-bottom: 2px solid rgba(0, 255, 255, 0.2);
-    }
-
-    .sidebar-logo {
-        margin-bottom: 0;
-        margin-right: 10px;
-    }
-
-    .main-content {
-        left: 0;
-        top: 60px;
-        padding: 15px;
-    }
-
-    .mobile-pause-btn {
-        top: 75px;
-    }
-
-    .game-title {
-        font-size: 48px;
-    }
-
-    .hero-section {
-        min-height: calc(100vh - 140px);
-    }
+    .sidebar { flex-direction: row; width: 100%; height: 60px; padding: 0 10px; border-right: none; border-bottom: 2px solid rgba(0, 255, 255, 0.2); }
+    .sidebar-logo { margin-bottom: 0; margin-right: 10px; }
+    .main-content { left: 0; top: 60px; padding: 15px; }
+    .mobile-pause-btn { top: 75px; }
+    .game-title { font-size: 48px !important; }
+    .hero-section { min-height: calc(100vh - 140px); }
 }
-
-/* ============================================
-МОБИЛЬНЫЙ CANVAS: ПОЛНОЭКРАННЫЙ БЕЗ ОТСТУПОВ
-============================================ */
 @media (max-width: 768px) {
-    #gameCanvas {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-    }
-}
-
-/* ============================================
-МОБИЛЬНЫЙ HUD: МНОГОСТРОЧНЫЙ С КРУПНЫМ ШРИФТОМ
-============================================ */
-@media (max-width: 768px) {
-    #ui {
-        top: 12px !important;
-        left: 12px !important;
-        right: 12px !important;
-        bottom: auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 3px !important;
-        pointer-events: none !important;
-    }
-    
-    /* Строка HUD */
-    #ui .hud-row {
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-    
-    /* ====== ОСНОВНЫЕ ПОКАЗАТЕЛИ (КРУПНО) ====== */
-    #ui .hud-row-score {
-        justify-content: space-between;
-        font-size: 17px;
-        font-weight: bold;
-        text-shadow: 0 0 8px #0ff, 0 1px 2px rgba(0,0,0,0.9);
-        letter-spacing: 0.3px;
-    }
-    
-    #ui .hud-main {
-        color: #0ff;
-    }
-    
-    #ui .hud-coins {
-        color: #ffd700 !important;
-        text-shadow: 0 0 8px #ffd700, 0 1px 2px rgba(0,0,0,0.9) !important;
-    }
-    
-    /* Строка 2: HP сердечки */
-    #ui .hud-row-hp {
-        margin-top: 1px;
-    }
-    
-    #ui #hpContainer {
-        display: flex;
-        gap: 5px;
-    }
-    
-    #ui .hp-heart {
-        width: 20px !important;
-        height: 20px !important;
-    }
-    
-    /* ====== ВТОРОСТЕПЕННЫЕ (МЕЛЬЧЕ) ====== */
-    #ui .hud-row-level {
-        font-size: 13px;
-        color: #88ff88;
-        text-shadow: 0 0 6px rgba(0, 255, 100, 0.6), 0 1px 2px rgba(0,0,0,0.9);
-        margin-top: 2px;
-        font-weight: 600;
-    }
-    
-    #ui .hud-row-minor {
-        font-size: 11px;
-        color: #aaccff;
-        text-shadow: 0 0 4px rgba(100, 180, 255, 0.5), 0 1px 2px rgba(0,0,0,0.9);
-        letter-spacing: 0.2px;
-    }
-    
-    /* Кнопка паузы не перекрывает HUD */
-    .mobile-pause-btn {
-        top: 15px !important;
-        right: 15px !important;
-        width: 44px !important;
-        height: 44px !important;
-    }
-}
-
-/* Очень маленькие телефоны (< 380px) — ещё компактнее */
-@media (max-width: 380px) {
-    #ui {
-        top: 8px !important;
-        left: 8px !important;
-        right: 8px !important;
-        gap: 2px !important;
-    }
-    
-    #ui .hud-row-score {
-        font-size: 15px;
-    }
-    
-    #ui .hud-row-level {
-        font-size: 12px;
-    }
-    
-    #ui .hud-row-minor {
-        font-size: 10px;
-    }
-    
-    #ui .hp-heart {
-        width: 17px !important;
-        height: 17px !important;
-    }
-    
-    .mobile-pause-btn {
-        width: 36px !important;
-        height: 36px !important;
-        top: 75px !important;
-        right: 8px !important;
-        font-size: 16px !important;
-    }
-}
-
-/* ============================================
-CANVAS ДОЛЖЕН ПРИНИМАТЬ TOUCH-СОБЫТИЯ
-============================================ */
-@media (max-width: 768px) {
-    #gameCanvas {
-        pointer-events: auto !important;
-        touch-action: none !important;
-    }
+    #gameCanvas { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 0 !important; border: none !important; pointer-events: auto !important; touch-action: none !important; }
 }

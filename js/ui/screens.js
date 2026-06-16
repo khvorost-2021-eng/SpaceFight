@@ -1,6 +1,7 @@
 // ==========================================
 // ЭКРАНЫ СМЕРТИ И ПОБЕДЫ
 // ==========================================
+
 Game.showDeathScreen = function() {
     const s = Game.state;
     s.currentState = Game.STATE.GAME_OVER;
@@ -12,18 +13,9 @@ Game.showDeathScreen = function() {
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('.main-content');
     const mainMenu = document.getElementById('mainMenu');
-    if (sidebar) {
-        sidebar.style.display = 'none';
-        sidebar.style.visibility = 'hidden';
-    }
-    if (mainContent) {
-        mainContent.style.display = 'none';
-        mainContent.style.visibility = 'hidden';
-    }
-    if (mainMenu) {
-        mainMenu.style.display = 'none';
-        mainMenu.style.visibility = 'hidden';
-    }
+    if (sidebar) { sidebar.style.display = 'none'; sidebar.style.visibility = 'hidden'; }
+    if (mainContent) { mainContent.style.display = 'none'; mainContent.style.visibility = 'hidden'; }
+    if (mainMenu) { mainMenu.style.display = 'none'; mainMenu.style.visibility = 'hidden'; }
 
     const uiEl = document.getElementById('ui');
     if (uiEl) uiEl.classList.add('hidden');
@@ -36,7 +28,7 @@ Game.showDeathScreen = function() {
     if (deathCoins) deathCoins.textContent = `Получено монет: ${s.coinsEarned}`;
     if (deathXP) deathXP.textContent = `Получено опыта: ${s.xpEarned || 0}`;
 
-    Game.hideDeathOverlays();
+    if (typeof Game.hideDeathOverlays === 'function') Game.hideDeathOverlays();
 
     const deathScreen = document.getElementById('deathScreen');
     if (deathScreen) {
@@ -49,19 +41,21 @@ Game.showDeathScreen = function() {
         deathScreen.style.zIndex = '2000';
     }
 
-    // 🔧 ДИНАМИЧЕСКИЙ ОБРАБОТЧИК menuBtn — зависит от режима
     const menuBtn = document.getElementById('menuBtn');
     if (menuBtn) {
         menuBtn.style.pointerEvents = 'auto';
         menuBtn.style.zIndex = '2001';
-        
+
         if (s.mode === 'campaign') {
             menuBtn.textContent = '🗺️ В уровни';
             menuBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('🗺️ Клик: В уровни (из смерти)');
-                
+
+                // 🔧 КРИТИЧЕСКОЕ: очищаем death-анимации ПЕРЕД переключением
+                if (typeof clearGameWorld === 'function') clearGameWorld();
+
                 if (DOM.deathScreen) {
                     DOM.deathScreen.classList.add('hidden');
                     DOM.deathScreen.style.display = 'none';
@@ -77,7 +71,9 @@ Game.showDeathScreen = function() {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('🏠 Клик: В меню (из смерти)');
-                
+
+                if (typeof clearGameWorld === 'function') clearGameWorld();
+
                 if (DOM.deathScreen) {
                     DOM.deathScreen.classList.add('hidden');
                     DOM.deathScreen.style.display = 'none';
@@ -103,7 +99,10 @@ Game.showDeathScreen = function() {
 Game.showLevelCompleteScreen = function() {
     const s = Game.state;
     s.currentState = Game.STATE.LEVEL_COMPLETE;
-    
+
+    // Очищаем мир перед показом экрана победы
+    if (typeof clearGameWorld === 'function') clearGameWorld();
+
     document.body.classList.remove('in-game');
     document.body.classList.add('showing-overlay');
 
@@ -119,7 +118,7 @@ Game.showLevelCompleteScreen = function() {
 
     const info = document.getElementById('levelCompleteInfo');
     if (info) {
-        info.innerHTML = 
+        info.innerHTML =
             `Уровень ${s.level} пройден!<br>Получено монет: ${s.coinsEarned}<br>Получено опыта: ${s.xpEarned || 0}`;
     }
 
@@ -145,7 +144,6 @@ Game.showLevelCompleteScreen = function() {
         completeScreen.style.zIndex = '';
     }
 
-    // 🔧 ДИНАМИЧЕСКИЙ ОБРАБОТЧИК levelCompleteMenuBtn
     const levelCompleteMenuBtn = document.getElementById('levelCompleteMenuBtn');
     if (levelCompleteMenuBtn) {
         if (s.mode === 'campaign') {
@@ -154,7 +152,9 @@ Game.showLevelCompleteScreen = function() {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('🗺️ Клик: В уровни (из победы)');
-                
+
+                if (typeof clearGameWorld === 'function') clearGameWorld();
+
                 if (DOM.levelCompleteScreen) {
                     DOM.levelCompleteScreen.classList.add('hidden');
                     DOM.levelCompleteScreen.style.display = 'none';
@@ -170,7 +170,9 @@ Game.showLevelCompleteScreen = function() {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('🏠 Клик: В меню (из победы)');
-                
+
+                if (typeof clearGameWorld === 'function') clearGameWorld();
+
                 if (DOM.levelCompleteScreen) {
                     DOM.levelCompleteScreen.classList.add('hidden');
                     DOM.levelCompleteScreen.style.display = 'none';
@@ -184,4 +186,7 @@ Game.showLevelCompleteScreen = function() {
     }
 
     document.body.style.cursor = 'default';
+    console.log('✅ Экран победы показан');
 };
+
+console.log('✅ ui/screens.js загружен');

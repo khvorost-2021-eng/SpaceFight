@@ -2,27 +2,76 @@
 // ЖИЗНЕННЫЙ ЦИКЛ ИГРЫ
 // ==========================================
 
+// 🔧 УНИВЕРСАЛЬНАЯ ОЧИСТКА: мир + death-анимации + canvas
+window.clearGameWorld = function() {
+    // 1. Очищаем все игровые массивы
+    Game.particles.length = 0;
+    Game.bullets.length = 0;
+    Game.enemyBullets.length = 0;
+    Game.enemies.length = 0;
+    Game.drones.length = 0;
+
+    // 2. Сбрасываем состояние
+    const s = Game.state;
+    s.shakeAmount = 0;
+    s.invulnerable = 0;
+    s.announcementTimer = 0;
+    s.waveState = 'IDLE';
+    s.currentWave = 0;
+    s.deathAnimationTimer = 0;
+    s.isPlayerDead = false;
+    s.waveTimer = 0;
+    s.currentWaveConfig = null;
+    s.waveAnnouncement = '';
+    Game.player.visible = false;
+
+    // 3. ЖЁСТКО скрываем death-анимации (inline-стили перебивают CSS)
+    const fade = document.getElementById('deathFadeOverlay');
+    const text = document.getElementById('gameOverText');
+    if (fade) {
+        fade.classList.remove('active');
+        fade.style.opacity = '0';
+        fade.style.pointerEvents = 'none';
+    }
+    if (text) {
+        text.classList.remove('active');
+        text.classList.add('hidden');
+        text.style.opacity = '0';
+        text.style.transform = 'translate(-50%, -50%) scale(0.5)';
+        text.style.pointerEvents = 'none';
+    }
+
+    // 4. Рисуем чистый звёздный фон на canvas
+    if (Game.ctx && Game.canvas) {
+        const ctx = Game.ctx;
+        ctx.fillStyle = '#000011';
+        ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+        if (Game.stars) {
+            Game.stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+        }
+    }
+};
+
 Game.gameOver = function() {
     const s = Game.state;
     s.currentState = Game.STATE.DYING;
     s.deathAnimationTimer = 0;
     s.isPlayerDead = true;
     Game.player.visible = false;
-    
     Game.createExplosion(Game.player.x, Game.player.y, true);
     Game.playPlayerExplosionSound();
     s.shakeAmount = 25;
-    
+
     s.coinsEarned = s.mode === 'arcade' ? Math.floor(s.score / 2) : Math.floor(s.score * 1.5);
-    
-    // Обновляем лучший счёт
     if (s.score > (Game.playerData.totalScore || 0)) {
         Game.playerData.totalScore = s.score;
     }
-    
     Game.playerData.coins += s.coinsEarned;
     Game.savePlayerData();
-    
+
     if (s.mode === 'arcade') Game.submitLeaderboardScore(s.score);
 };
 
@@ -31,34 +80,31 @@ Game.levelComplete = function() {
     s.currentState = Game.STATE.LEVEL_COMPLETE;
     s.coinsEarned = s.score * 2;
     Game.playerData.coins += s.coinsEarned;
-    
-    // Обновляем лучший счёт
+
     if (s.score > (Game.playerData.totalScore || 0)) {
         Game.playerData.totalScore = s.score;
     }
-    
+
     const levelBonusXP = s.level * 50;
     s.xpEarned = (s.xpEarned || 0) + levelBonusXP;
     Game.addXP(levelBonusXP);
-    
+
     if (!Game.playerData.levelsCompleted.includes(s.level)) {
         Game.playerData.levelsCompleted.push(s.level);
     }
     if (s.level >= Game.playerData.maxLevelUnlocked) {
         Game.playerData.maxLevelUnlocked = Math.min(20, s.level + 1);
     }
-    
+
     Game.savePlayerData();
     Game.showLevelCompleteScreen();
 };
 
 function actuallyStartGame(mode, level) {
     const s = Game.state;
-    
-    Game.resetAllAnimations();
+    clearGameWorld();
     Game.initAudio();
-    
-    // === ЖЕЛЕЗОБЕТОННОЕ СКРЫТИЕ ВСЕХ OVERLAY-ЭКРАНОВ ===
+
     const overlayIds = ['deathScreen', 'levelCompleteScreen', 'pauseScreen'];
     overlayIds.forEach(id => {
         const el = document.getElementById(id);
@@ -66,7 +112,6 @@ function actuallyStartGame(mode, level) {
             el.classList.add('hidden');
             el.classList.remove('active');
             el.classList.remove('fade-out');
-            // Принудительные inline-стили (на случай CSS-конфликтов)
             el.style.display = 'none';
             el.style.visibility = 'hidden';
             el.style.opacity = '0';
@@ -74,19 +119,16 @@ function actuallyStartGame(mode, level) {
             el.style.zIndex = '-1';
         }
     });
-    
-    // СКРЫВАЕМ кнопку "Следующий уровень" при старте игры
+
     const nextLevelBtn = document.getElementById('nextLevelBtn');
     if (nextLevelBtn) {
         nextLevelBtn.classList.add('hidden');
         nextLevelBtn.style.display = 'none';
     }
-    
-    // === СКРЫТИЕ ГЛАВНОГО МЕНЮ ===
+
     if (typeof hideMainMenuUI === 'function') {
         hideMainMenuUI();
     } else {
-        // Fallback если функция не экспортирована
         document.body.classList.add('in-game');
         const mainMenu = document.getElementById('mainMenu');
         const sidebar = document.querySelector('.sidebar');
@@ -95,8 +137,7 @@ function actuallyStartGame(mode, level) {
         if (sidebar) sidebar.style.display = 'none';
         if (mainContent) mainContent.style.display = 'none';
     }
-    
-    // === ПОКАЗ ИГРОВОГО HUD ===
+
     if (typeof showGameHUD === 'function') {
         showGameHUD();
     } else {
@@ -112,28 +153,12 @@ function actuallyStartGame(mode, level) {
         }
     }
 
-    // === СКРЫТИЕ ГЛАВНОГО МЕНЮ ===
-    if (typeof hideMainMenuUI === 'function') {
-        hideMainMenuUI();
-    } else {
-        const mainMenu = document.getElementById('mainMenu');
-        const sidebar = document.querySelector('.sidebar');
-        const mainContent = document.querySelector('.main-content');
-        if (mainMenu) {
-            mainMenu.style.display = 'none';
-            mainMenu.classList.add('hidden');
-        }
-        if (sidebar) sidebar.style.display = 'none';
-        if (mainContent) mainContent.style.display = 'none';
-    }
-    
-    // === ИНИЦИАЛИЗАЦИЯ ИГРОВОГО СОСТОЯНИЯ ===
     s.mode = mode;
     s.score = 0;
     s.hp = s.maxHp;
     s.coinsEarned = 0;
     s.xpEarned = 0;
-    
+
     if (mode === 'arcade') {
         s.currentState = Game.STATE.ARCADE;
         s.levelWaves = Game.generateEndlessWaves(0);
@@ -146,14 +171,13 @@ function actuallyStartGame(mode, level) {
         s.totalWaves = s.levelWaves.length;
         s.currentWave = 0;
     }
-    
+
     Game.resetPlayer();
     Game.spawnDrones();
-    
     document.body.style.cursor = 'none';
-    
+
     console.log(`🎮 Игра начата. Волн: ${s.totalWaves}, Дронов: ${Game.drones.length}`);
-    
+
     setTimeout(() => {
         if (s.currentState === Game.STATE.ARCADE || s.currentState === Game.STATE.CAMPAIGN) {
             Game.startWave(0);
@@ -161,14 +185,8 @@ function actuallyStartGame(mode, level) {
     }, 1000);
 }
 
-Game.startGame = function(mode) {
-    actuallyStartGame(mode);
-};
-
-Game.startCampaignFromLevel = function(level) {
-    actuallyStartGame('campaign', level);
-};
-
+Game.startGame = function(mode) { actuallyStartGame(mode); };
+Game.startCampaignFromLevel = function(level) { actuallyStartGame('campaign', level); };
 Game.nextLevel = function() {
     const next = Math.min(20, Game.state.level + 1);
     Game.playerData.maxLevelUnlocked = Math.max(Game.playerData.maxLevelUnlocked, next);
@@ -177,22 +195,11 @@ Game.nextLevel = function() {
 };
 
 Game.resetWorld = function() {
-    Game.particles.length = 0;
-    Game.bullets.length = 0;
-    Game.enemyBullets.length = 0;
-    Game.enemies.length = 0;
-    Game.drones.length = 0;
-    Game.state.shakeAmount = 0;
-    Game.state.invulnerable = 0;
-    Game.state.announcementTimer = 0;
-    Game.state.waveState = 'IDLE';
-    Game.state.currentWave = 0;
-    Game.state.deathAnimationTimer = 0;
-    Game.state.isPlayerDead = false;
-    Game.player.visible = true;
-    Game.hideDeathOverlays();
+    clearGameWorld();
 };
 
 Game.resetAllAnimations = function() {
-    Game.resetWorld();
+    clearGameWorld();
 };
+
+console.log('✅ game/lifecycle.js загружен (с clearGameWorld)');
