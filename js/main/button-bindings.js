@@ -127,16 +127,21 @@ function bindButtons() {
         });
     }
 
-    // 🔧 ВКЛАДКИ МАГАЗИНА — используем Game.renderShopTab
-    document.querySelectorAll('.shop-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
+    // === ВКЛАДКИ МАГАЗИНА ===
+    document.querySelectorAll('.shop-tab').forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
             e.stopPropagation();
-            const tabName = tab.dataset.tab;
-            console.log(`🛒 Вкладка: ${tabName}`);
+            var tabName = tab.dataset.tab;
+            console.log('\uD83D\uDED2 \u0412\u043A\u043B\u0430\u0434\u043A\u0430: ' + tabName);
+
             if (typeof Game.renderShopTab === 'function') {
                 Game.renderShopTab(tabName);
+            } else if (typeof window.renderShopTab === 'function') {
+                window.renderShopTab(tabName);
             } else if (typeof window.renderShopTabInternal === 'function') {
                 window.renderShopTabInternal(tabName);
+            } else {
+                console.error('\u274C \u0424\u0443\u043D\u043A\u0446\u0438\u044F \u0440\u0435\u043D\u0434\u0435\u0440\u0438\u043D\u0433\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430!');
             }
         });
     });

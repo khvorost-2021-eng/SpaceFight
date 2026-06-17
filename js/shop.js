@@ -1,6 +1,7 @@
 // ==========================================
 // МАГАЗИН: СКИНЫ И ДРОНЫ
 // ==========================================
+
 Game.SKINS = [
     { id: 'standard', name: 'Стандартный', price: 0, color: '#00ffff' },
     { id: 'red', name: 'Красный (Скоро)', price: 100, color: '#ff0000' },
@@ -9,38 +10,37 @@ Game.SKINS = [
     { id: 'gold', name: 'Золотой (Скоро)', price: 500, color: '#ffd700' }
 ];
 
-let currentShopTab = 'skins';
+var currentShopTab = 'skins';
 
+// === ГЛАВНАЯ ФУНКЦИЯ ПОКАЗА МАГАЗИНА ===
 Game.showShopScreen = function() {
+    console.log('🛒 [showShopScreen] Вызван');
     Game.state.currentState = Game.STATE.SHOP;
-    const shopCoins = document.getElementById('shopCoins');
-    if (shopCoins) shopCoins.textContent = `Монеты: ${Game.playerData.coins}`;
-    
-    // Показываем shopView через switchView
+
+    var shopCoins = document.getElementById('shopCoins');
+    if (shopCoins) shopCoins.textContent = '\u041C\u043E\u043D\u0435\u0442\u044B: ' + Game.playerData.coins;
+
     if (typeof window.switchView === 'function') {
         window.switchView('shop');
     }
-    
-    // Рендерим содержимое
-    renderShopTab(currentShopTab);
+
+    renderShopTab('skins');
     document.body.style.cursor = 'default';
 };
 
-function updateShopCoins() {
-    const el = document.getElementById('shopCoins');
-    if (el) el.textContent = `Монеты: ${Game.playerData.coins}`;
-}
-
+// === ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ===
 function renderShopTab(tab) {
+    console.log('\uD83D\uDD04 [renderShopTab] ' + tab);
     currentShopTab = tab;
-    const content = document.getElementById('shopContent');
+
+    var content = document.getElementById('shopContent');
     if (!content) {
-        console.warn('⚠️ #shopContent не найден');
+        console.error('\u274C #shopContent \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D');
         return;
     }
     content.innerHTML = '';
 
-    document.querySelectorAll('.shop-tab').forEach(btn => {
+    document.querySelectorAll('.shop-tab').forEach(function(btn) {
         btn.classList.toggle('active', btn.dataset.tab === tab);
     });
 
@@ -51,42 +51,37 @@ function renderShopTab(tab) {
     }
 }
 
+// === ВКЛАДКА СКИНОВ ===
 function renderSkinsTab(content) {
-    const grid = document.createElement('div');
+    var grid = document.createElement('div');
     grid.className = 'shop-grid';
 
-    Game.SKINS.forEach(skin => {
-        const card = document.createElement('div');
+    Game.SKINS.forEach(function(skin) {
+        var card = document.createElement('div');
         card.className = 'shop-card';
 
-        const isOwned = Game.playerData.skins.includes(skin.id);
-        const isSelected = Game.playerData.selectedSkin === skin.id;
+        var isOwned = Game.playerData.skins.indexOf(skin.id) !== -1;
+        var isSelected = Game.playerData.selectedSkin === skin.id;
 
         if (isSelected) card.classList.add('selected');
         else if (isOwned) card.classList.add('owned');
-        else if (!isOwned && skin.price > 0) card.classList.add('locked');
+        else if (skin.price > 0) card.classList.add('locked');
 
-        const preview = document.createElement('div');
+        var preview = document.createElement('div');
         preview.className = 'shop-card-preview';
-        if (Game.shipsLoaded && Game.ships.player) {
-            const img = document.createElement('img');
-            img.src = Game.ships.player.src;
-            preview.appendChild(img);
-        } else {
-            preview.innerHTML = '<div style="font-size:32px;color:#0ff;">🚀</div>';
-        }
+        preview.innerHTML = '<div style="font-size:32px;color:#0ff;">\uD83D\uDE80</div>';
 
-        const name = document.createElement('div');
+        var name = document.createElement('div');
         name.className = 'shop-card-name';
         name.textContent = skin.name;
 
-        const btn = document.createElement('button');
+        var btn = document.createElement('button');
         if (isSelected) {
             btn.textContent = LANG.selected;
             btn.disabled = true;
         } else if (isOwned) {
             btn.textContent = LANG.select;
-            btn.onclick = () => {
+            btn.onclick = function() {
                 Game.playerData.selectedSkin = skin.id;
                 Game.savePlayerData();
                 renderShopTab('skins');
@@ -103,77 +98,80 @@ function renderSkinsTab(content) {
     });
 
     content.appendChild(grid);
-
-    if (!Game.shipsLoaded) {
-        const checkShips = setInterval(() => {
-            if (Game.shipsLoaded) {
-                clearInterval(checkShips);
-                if (currentShopTab === 'skins') renderShopTab('skins');
-            }
-        }, 100);
-    }
+    console.log('  \u2705 \u0421\u043A\u0438\u043D\u044B \u043E\u0442\u0440\u0438\u0441\u043E\u0432\u0430\u043D\u044B: ' + Game.SKINS.length);
 }
 
+// === ВКЛАДКА ДРОНОВ ===
 function renderDronesTab(content) {
-    const grid = document.createElement('div');
+    if (!Game.DRONE_TYPES) {
+        console.error('  \u274C Game.DRONE_TYPES \u043D\u0435 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0451\u043D');
+        return;
+    }
+
+    var droneList = Object.values(Game.DRONE_TYPES);
+    console.log('  \uD83D\uDCCB \u0414\u0440\u043E\u043D\u043E\u0432 \u043D\u0430\u0439\u0434\u0435\u043D\u043E: ' + droneList.length);
+
+    var grid = document.createElement('div');
     grid.className = 'shop-grid';
 
-    Object.values(Game.DRONE_TYPES).forEach(droneType => {
-        const card = document.createElement('div');
+    droneList.forEach(function(droneType) {
+        var card = document.createElement('div');
         card.className = 'shop-card';
 
-        const isOwned = Game.playerData.drones.includes(droneType.id);
-        const canAfford = Game.playerData.coins >= droneType.price;
+        var isOwned = Game.playerData.drones.indexOf(droneType.id) !== -1;
+        var canAfford = Game.playerData.coins >= droneType.price;
 
         if (isOwned) card.classList.add('owned');
 
-        const preview = document.createElement('div');
+        var preview = document.createElement('div');
         preview.className = 'shop-card-preview';
-        if (Game.droneImages[droneType.id]) {
-            const img = document.createElement('img');
-            img.src = Game.droneImages[droneType.id].src;
-            preview.appendChild(img);
-        } else {
-            preview.innerHTML = '<div style="font-size:32px;color:#0ff;">🛸</div>';
-        }
+        preview.innerHTML = '<div style="font-size:32px;color:#0ff;">\uD83D\uDEF8</div>';
 
-        const name = document.createElement('div');
+        var name = document.createElement('div');
         name.className = 'shop-card-name';
         name.textContent = droneType.name;
 
-        const desc = document.createElement('div');
+        var desc = document.createElement('div');
         desc.className = 'shop-card-desc';
-        desc.textContent = droneType.description;
+        desc.textContent = droneType.description || '';
 
-        const stats = document.createElement('div');
+        var stats = document.createElement('div');
         stats.className = 'shop-card-stats';
-        stats.innerHTML = `
-            <div>❤️ HP: ${droneType.hp}</div>
-            <div>⚔️ Урон: ${droneType.damage.toFixed(1)}</div>
-            ${droneType.fireRate > 0 ? `<div>⚡ Скорость: ${(Math.round(60 / droneType.fireRate * 10) / 10).toFixed(1)}/с</div>` : ''}
-            ${droneType.accuracy > 0 ? `<div>🎯 Точность: ${Math.round(droneType.accuracy * 100)}%</div>` : ''}
-            ${droneType.healInterval ? `<div>💚 Лечение: 1 HP / ${droneType.healInterval / 60}с</div>` : ''}
-            ${droneType.volley ? `<div>💥 Залп: ${droneType.volley} пуль</div>` : ''}
-        `;
+        var statsHtml = '<div>\u2764\uFE0F HP: ' + droneType.hp + '</div>';
+        statsHtml += '<div>\u2694\uFE0F \u0423\u0440\u043E\u043D: ' + droneType.damage.toFixed(1) + '</div>';
+        if (droneType.fireRate > 0) {
+            statsHtml += '<div>\u26A1 \u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C: ' + (Math.round(60 / droneType.fireRate * 10) / 10).toFixed(1) + '/\u0441</div>';
+        }
+        if (droneType.accuracy > 0) {
+            statsHtml += '<div>\uD83C\uDFAF \u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C: ' + Math.round(droneType.accuracy * 100) + '%</div>';
+        }
+        if (droneType.healInterval) {
+            statsHtml += '<div>\uD83D\uDC9A \u041B\u0435\u0447\u0435\u043D\u0438\u0435: 1 HP / ' + (droneType.healInterval / 60) + '\u0441</div>';
+        }
+        if (droneType.volley) {
+            statsHtml += '<div>\uD83D\uDCA5 \u0417\u0430\u043B\u043F: ' + droneType.volley + ' \u043F\u0443\u043B\u044C</div>';
+        }
+        stats.innerHTML = statsHtml;
 
-        const price = document.createElement('div');
+        var price = document.createElement('div');
         price.className = 'shop-card-price';
 
-        const btn = document.createElement('button');
+        var btn = document.createElement('button');
         if (isOwned) {
-            price.textContent = '✓ ' + LANG.owned;
+            price.textContent = '\u2713 ' + LANG.owned;
             btn.textContent = LANG.owned;
             btn.disabled = true;
         } else {
-            price.textContent = `💰 ${droneType.price}`;
-            btn.textContent = canAfford ? LANG.buy : `Нужно ${droneType.price}`;
+            price.textContent = '\uD83D\uDCB0 ' + droneType.price;
+            btn.textContent = canAfford ? LANG.buy : '\u041D\u0443\u0436\u043D\u043E ' + droneType.price;
             btn.disabled = !canAfford;
-            btn.onclick = () => {
+            btn.onclick = function() {
                 if (Game.playerData.coins >= droneType.price) {
                     Game.playerData.coins -= droneType.price;
                     Game.playerData.drones.push(droneType.id);
                     Game.savePlayerData();
-                    updateShopCoins();
+                    var el = document.getElementById('shopCoins');
+                    if (el) el.textContent = '\u041C\u043E\u043D\u0435\u0442\u044B: ' + Game.playerData.coins;
                     renderShopTab('drones');
                 }
             };
@@ -189,10 +187,12 @@ function renderDronesTab(content) {
     });
 
     content.appendChild(grid);
+    console.log('  \u2705 \u0414\u0440\u043E\u043D\u044B \u043E\u0442\u0440\u0438\u0441\u043E\u0432\u0430\u043D\u044B: ' + droneList.length);
 }
 
-// 🔧 Экспорт для вызова из разных мест
+// === ЭКСПОРТ — ОБЯЗАТЕЛЬНО ЧЕРЕЗ window ===
+window.renderShopTab = renderShopTab;
 window.renderShopTabInternal = renderShopTab;
 Game.renderShopTab = renderShopTab;
 
-console.log('✅ ui/shop.js загружен');
+console.log('\u2705 ui/shop.js \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D');
