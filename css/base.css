@@ -4,6 +4,45 @@
     box-sizing: border-box;
 }
 
+/* ============================================
+🔧 ЗАПРЕТЫ ДЛЯ ЯНДЕКС ИГР
+============================================ */
+
+/* Запрет выделения текста и элементов */
+*, *::before, *::after {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+}
+
+/* Разрешаем выделение только в input/textarea (если появятся) */
+input, textarea {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+
+/* Запрет браузерной прокрутки и жестов */
+html, body {
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: auto !important;
+}
+
+/* Запрет перетаскивания изображений */
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    pointer-events: none;
+}
+
 /* Предотвращаем зум и скролл на iOS */
 html, body {
     position: fixed;
