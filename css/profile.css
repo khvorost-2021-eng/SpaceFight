@@ -1,0 +1,423 @@
+/* ============================================
+   ПРОФИЛЬ ИГРОКА
+   ============================================ */
+
+.profile-menu {
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+/* === ШАПКА ПРОФИЛЯ === */
+
+.profile-header {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(136, 204, 255, 0.05));
+    border: 2px solid #0ff;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+    animation: profileGlow 4s ease-in-out infinite;
+}
+
+@keyframes profileGlow {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.profile-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #0ff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 42px;
+    box-shadow: 0 0 20px #0ff;
+}
+
+.profile-name-rank {
+    text-align: left;
+}
+
+.profile-name {
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #0ff;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-name:hover {
+    color: #ffd700;
+    text-shadow: 0 0 15px #ffd700;
+}
+
+.profile-name::after {
+    content: '✎';
+    font-size: 16px;
+    opacity: 0.6;
+}
+
+.profile-rank {
+    font-size: 18px;
+    color: #ffd700;
+    margin-top: 4px;
+    text-shadow: 0 0 8px #ffd700;
+}
+
+.profile-level-badge {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.profile-level-label {
+    font-size: 12px;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+.profile-level-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 15px #ffd700;
+}
+
+/* === XP БАР === */
+
+.profile-xp-section {
+    margin-top: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-xp-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #88ccff;
+    margin-bottom: 6px;
+}
+
+.profile-xp-bar {
+    width: 100%;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #0ff8;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0ff, #88ccff, #fff);
+    transition: width 0.5s ease;
+    position: relative;
+    box-shadow: 0 0 15px #0ff;
+}
+
+.profile-xp-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: xpShine 2s ease-in-out infinite;
+}
+
+@keyframes xpShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* === СЕКЦИИ ПРОФИЛЯ === */
+
+.profile-section {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #0ff8;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profile-section-title {
+    font-size: 20px;
+    color: #0ff;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #0ff4;
+    text-shadow: 0 0 8px #0ff;
+}
+
+.profile-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.profile-stat {
+    background: rgba(0, 255, 255, 0.05);
+    border: 1px solid #0ff4;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.profile-stat-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.profile-stat-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0ff;
+    text-shadow: 0 0 8px #0ff;
+}
+
+.profile-stat-value.gold {
+    color: #ffd700;
+    text-shadow: 0 0 8px #ffd700;
+}
+
+.profile-stat-value.green {
+    color: #00ff66;
+    text-shadow: 0 0 8px #00ff66;
+}
+
+/* === СЛОТЫ ДРОНОВ === */
+
+.gear-panel {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #0ff;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.gear-section-title {
+    font-size: 18px;
+    color: #0ff;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #0ff4;
+    padding-bottom: 5px;
+}
+
+.gear-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.gear-stat-box {
+    background: rgba(0, 255, 255, 0.08);
+    border: 1px solid #0ff8;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.gear-stat-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.gear-stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0ff;
+}
+
+.xp-bar {
+    width: 100%;
+    height: 8px;
+    background: #222;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0ff, #88ccff);
+    transition: width 0.5s;
+}
+
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.slot-card {
+    background: rgba(0, 255, 255, 0.08);
+    border: 2px solid #555;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.3s;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.slot-card.unlocked {
+    border-color: #0ff;
+    background: rgba(0, 255, 255, 0.12);
+}
+
+.slot-card.unlocked.equipped {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.15);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.slot-card.locked {
+    opacity: 0.7;
+}
+
+.slot-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0ff;
+}
+
+.slot-card.locked .slot-number {
+    color: #555;
+}
+
+.slot-status {
+    font-size: 12px;
+    color: #aaa;
+    margin: 5px 0;
+    min-height: 36px;
+}
+
+.slot-drone-preview {
+    width: 50px;
+    height: 50px;
+    margin: 5px auto;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slot-drone-preview img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.slot-drone-preview.empty {
+    color: #555;
+    font-size: 24px;
+}
+
+.slot-card button {
+    margin: 5px 0 0 0 !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    max-width: 100% !important;
+}
+
+.slot-requirements {
+    font-size: 10px;
+    color: #888;
+    margin-top: 3px;
+}
+
+.slot-requirements.met {
+    color: #0f0;
+}
+
+.slot-requirements.unmet {
+    color: #f55;
+}
+
+/* ============================================
+АНИМАЦИИ КНОПОК СЛОТОВ
+============================================ */
+.slot-card button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.slot-card button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.slot-card button:hover:not(:disabled)::before {
+    width: 300%;
+    height: 300%;
+}
+
+.slot-card button:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 255, 255, 0.4);
+}
+
+.slot-card button:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(0, 255, 255, 0.3);
+}

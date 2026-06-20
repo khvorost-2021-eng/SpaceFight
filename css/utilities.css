@@ -1,0 +1,62 @@
+/* ============================================
+   УТИЛИТЫ И MEDIA QUERIES
+   ============================================ */
+
+/* Скрытие скроллбара */
+*::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* === АДАПТИВНОСТЬ === */
+
+@media (max-height: 700px) {
+    .screen {
+        padding: 20px 15px;
+    }
+    
+    .profile-header {
+        padding: 15px;
+    }
+    
+    .profile-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 32px;
+    }
+    
+    .profile-name {
+        font-size: 22px;
+    }
+    
+    .profile-rank {
+        font-size: 16px;
+    }
+    
+    .profile-level-value {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 600px) {
+    .menu h1 {
+        font-size: 36px;
+    }
+    
+    .menu button {
+        font-size: 18px;
+        padding: 12px 30px;
+    }
+    
+    .level-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .slots-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

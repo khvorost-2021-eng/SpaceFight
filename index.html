@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DRONIX - Космический Шутер</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/buttons.css">
     <link rel="stylesheet" href="css/sidebar.css">
@@ -16,43 +18,75 @@
     <link rel="stylesheet" href="css/profile.css">
     <link rel="stylesheet" href="css/utilities.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/menu-background.css">
 </head>
-<body>
+<body class="loading">
 
+    <!-- ИГРОВОЙ CANVAS (всегда внизу, под всем) -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Анимации смерти (чистятся при возврате в меню) -->
+    <!-- ФОН МЕНЮ: звёзды + силуэты дронов (скрыт во время игры) -->
+    <canvas id="menuBg"></canvas>
+
+    <!-- АНИМАЦИИ СМЕРТИ -->
     <div id="deathFadeOverlay"></div>
     <div id="gameOverText" class="hidden">ИГРА ОКОНЧЕНА</div>
 
-    <!-- SIDEBAR -->
+    <!-- ============================================ -->
+    <!-- SIDEBAR (левая панель навигации) -->
+    <!-- ============================================ -->
     <nav class="sidebar">
-        <div class="sidebar-logo"><div class="logo-icon">🛸</div></div>
-        <button class="sidebar-btn active" data-view="home" title="Главная"><span class="btn-icon">🏠</span></button>
-        <button class="sidebar-btn" data-view="levels" title="Уровни"><span class="btn-icon">🗺️</span></button>
-        <button class="sidebar-btn" data-view="profile" title="Профиль"><span class="btn-icon">👤</span></button>
-        <button class="sidebar-btn" data-view="shop" title="Магазин"><span class="btn-icon">🛒</span></button>
-        <button class="sidebar-btn" data-view="settings" title="Настройки"><span class="btn-icon">⚙️</span></button>
+        <div class="sidebar-logo">
+            <div class="logo-icon">🛸</div>
+        </div>
+        <button class="sidebar-btn active" data-view="home" title="Главная">
+            <span class="btn-icon">🏠</span>
+        </button>
+        <button class="sidebar-btn" data-view="levels" title="Уровни">
+            <span class="btn-icon">🗺️</span>
+        </button>
+        <button class="sidebar-btn" data-view="profile" title="Профиль">
+            <span class="btn-icon">👤</span>
+        </button>
+        <button class="sidebar-btn" data-view="shop" title="Магазин">
+            <span class="btn-icon">🛒</span>
+        </button>
+        <button class="sidebar-btn" data-view="settings" title="Настройки">
+            <span class="btn-icon">⚙️</span>
+        </button>
     </nav>
 
-    <!-- MAIN CONTENT -->
+    <!-- ============================================ -->
+    <!-- MAIN CONTENT (правая часть с views) -->
+    <!-- ============================================ -->
     <div class="main-content">
-        <!-- HOME -->
+
+        <!-- === HOME VIEW === -->
         <div id="homeView" class="view active">
             <div class="hero-section">
                 <h1 class="game-title">DRONIX</h1>
                 <p class="game-subtitle">Космический Шутер</p>
+                
                 <div class="hero-stats">
-                    <div class="stat-box"><div class="stat-label">Уровень</div><div id="menuLevel" class="stat-value">1</div></div>
-                    <div class="stat-box"><div class="stat-label">Монеты</div><div id="menuCoins" class="stat-value gold">0</div></div>
+                    <div class="stat-box">
+                        <div class="stat-label">Уровень</div>
+                        <div id="menuLevel" class="stat-value">1</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Монеты</div>
+                        <div id="menuCoins" class="stat-value gold">0</div>
+                    </div>
                 </div>
+                
                 <div class="hero-buttons">
-                    <button id="arcadeBtn" class="primary-btn"><span class="btn-text">🚀 БЕСКОНЕЧНЫЙ РЕЖИМ</span></button>
+                    <button id="arcadeBtn" class="primary-btn">
+                        <span class="btn-text">🚀 БЕСКОНЕЧНЫЙ РЕЖИМ</span>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- LEVELS -->
+        <!-- === LEVELS VIEW === -->
         <div id="levelsView" class="view">
             <div class="view-header">
                 <h2>Выбор уровня</h2>
@@ -65,45 +99,56 @@
             </div>
         </div>
 
-        <!-- PROFILE -->
+        <!-- === PROFILE VIEW === -->
         <div id="profileView" class="view">
             <div class="view-header"><h2>Профиль пилота</h2></div>
             <div id="profileContent" class="profile-menu"></div>
         </div>
 
-        <!-- SHOP -->
+        <!-- === SHOP VIEW === -->
         <div id="shopView" class="view">
             <div class="view-header">
                 <h2>Магазин</h2>
-                <div id="shopCoins" class="coins-display">Монеты: 0</div>
+                <div id="shopCoins" class="coins-display">💰 Монеты: 0</div>
             </div>
             <div class="shop-tabs">
-                <button class="shop-tab active" data-tab="skins">Скины</button>
-                <button class="shop-tab" data-tab="drones">Дроны</button>
+                <button class="shop-tab active" data-tab="upgrades">⚡ Прокачка</button>
+                <button class="shop-tab" data-tab="drones">🛸 Дроны</button>
+                <button class="shop-tab" data-tab="colors">🎨 Цвета</button>
             </div>
             <div id="shopContent"></div>
         </div>
 
-        <!-- SETTINGS -->
+        <!-- === SETTINGS VIEW === -->
         <div id="settingsView" class="view">
             <div class="view-header"><h2>Настройки</h2></div>
-            <div class="placeholder-content"><div class="placeholder-icon">⚙️</div><p>Скоро</p></div>
+            <div class="placeholder-content">
+                <div class="placeholder-icon">⚙️</div>
+                <p>Скоро</p>
+            </div>
         </div>
+
     </div>
 
-    <!-- HUD -->
-    <div id="ui" style="display:none;">
+    <!-- ============================================ -->
+    <!-- GAME HUD -->
+    <!-- ============================================ -->
+    <div id="ui" class="hidden">
         <div id="score">Счёт: 0</div>
         <div id="coinsDisplay">Монеты: 0</div>
         <div id="hpContainer"></div>
         <div id="levelDisplay"></div>
     </div>
 
-    <!-- MOBILE PAUSE -->
-    <button id="mobilePauseBtn" class="mobile-pause-btn" style="display:none;">⏸</button>
+    <!-- МОБИЛЬНАЯ КНОПКА ПАУЗЫ -->
+    <button id="mobilePauseBtn" class="mobile-pause-btn hidden">⏸</button>
 
-    <!-- OVERLAYS -->
-    <div id="pauseScreen" class="screen" style="display:none;">
+    <!-- ============================================ -->
+    <!-- OVERLAY-ЭКРАНЫ -->
+    <!-- ============================================ -->
+
+    <!-- PAUSE SCREEN -->
+    <div id="pauseScreen" class="screen hidden">
         <div class="pause-menu">
             <h1>⏸ ПАУЗА</h1>
             <p>Нажмите ESC чтобы продолжить</p>
@@ -112,7 +157,8 @@
         </div>
     </div>
 
-    <div id="deathScreen" class="screen" style="display:none;">
+    <!-- DEATH SCREEN -->
+    <div id="deathScreen" class="screen hidden">
         <div class="death-menu">
             <h1>💀 ИГРА ОКОНЧЕНА</h1>
             <p id="deathScore">Счёт: 0</p>
@@ -123,7 +169,8 @@
         </div>
     </div>
 
-    <div id="levelCompleteScreen" class="screen" style="display:none;">
+    <!-- LEVEL COMPLETE SCREEN -->
+    <div id="levelCompleteScreen" class="screen hidden">
         <div class="complete-menu">
             <h1>🏆 УРОВЕНЬ ПРОЙДЕН!</h1>
             <p id="levelCompleteInfo"></p>
@@ -132,9 +179,13 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://yandex.ru/games/sdk/2" onerror="console.log('Yandex SDK не загружен')"></script>
+    <!-- ============================================ -->
+    <!-- SCRIPTS (порядок важен!) -->
+    <!-- ============================================ -->
+    <script src="https://yandex.ru/games/sdk/2" onerror="console.log('Yandex SDK не загружен (локальный режим)')"></script>
     <script src="lang.js"></script>
+    
+    <!-- STATE -->
     <script src="js/state/core.js"></script>
     <script src="js/state/player-data.js"></script>
     <script src="js/state/sdk.js"></script>
@@ -142,13 +193,23 @@
     <script src="js/state/assets.js"></script>
     <script src="js/state/drones-config.js"></script>
     <script src="js/state/levels-config.js"></script>
+    
+    <!-- MAIN -->
     <script src="js/main/helpers.js"></script>
     <script src="js/main/dom-cache.js"></script>
     <script src="js/main/config.js"></script>
     <script src="js/main/event-handlers.js"></script>
     <script src="js/main/sidebar.js"></script>
     <script src="js/main/button-bindings.js"></script>
+
+    <!-- MENU BACKGROUND (модули) -->
+    <script src="js/main/menu-background/background.js"></script>
+    <script src="js/main/menu-background/drone-previews.js"></script>
+    <script src="js/main/menu-background/index.js"></script>
+
     <script src="js/main/init.js"></script>
+    
+    <!-- ENEMIES -->
     <script src="js/enemies/constants.js"></script>
     <script src="js/enemies/creation.js"></script>
     <script src="js/enemies/ai.js"></script>
@@ -156,19 +217,36 @@
     <script src="js/enemies/rendering.js"></script>
     <script src="js/enemies/update.js"></script>
     <script src="js/enemies/waves.js"></script>
+    
+    <!-- GAME -->
     <script src="js/game/particles.js"></script>
     <script src="js/game/combat.js"></script>
     <script src="js/game/drones.js"></script>
     <script src="js/game/render.js"></script>
     <script src="js/game/lifecycle.js"></script>
     <script src="js/game/waves.js"></script>
+    
+    <!-- PLAYER -->
     <script src="js/player.js"></script>
+    
+    <!-- UI -->
     <script src="js/ui/hud.js"></script>
     <script src="js/ui/levels.js"></script>
     <script src="js/ui/profile.js"></script>
-    <script src="js/shop.js"></script>
+
+    <!-- SHOP (модули) -->
+    <script src="js/shop/config.js"></script>
+    <script src="js/shop/render.js"></script>
+    <script src="js/shop/upgrades.js"></script>
+    <script src="js/shop/drones.js"></script>
+    <script src="js/shop/colors.js"></script>
+    <script src="js/shop/index.js"></script>
+
     <script src="js/ui/menus.js"></script>
     <script src="js/ui/screens.js"></script>
+    
+    <!-- APP -->
     <script src="app.js"></script>
+
 </body>
 </html>

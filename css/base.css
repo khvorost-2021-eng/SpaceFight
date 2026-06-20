@@ -1,0 +1,77 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Предотвращаем зум и скролл на iOS */
+html, body {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* 🔧 Тёмно-синий космос вместо чёрного. Убирает резкую чёрную вспышку при загрузке */
+    background: #050a1a;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+}
+
+/* 🔧 Игровой канвас скрыт в меню. Показывается только при старте игры,
+   чтобы не мелькал чёрный прямоугольник до инициализации Game.init() */
+#gameCanvas {
+    display: none;
+}
+body.in-game #gameCanvas {
+    display: block;
+}
+
+#gameCanvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Скрытие скроллбара */
+*::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* ============================================
+🔧 СКРЫТИЕ ИНТЕРФЕЙСА ДО ПЕРВОГО КАДРА ФОНА
+============================================ */
+body.loading .sidebar,
+body.loading .main-content,
+body.loading #menuBg {
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Плавное появление после загрузки фона */
+body:not(.loading) .sidebar,
+body:not(.loading) .main-content {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.3s ease 0.05s;
+}
+
+body:not(.loading) #menuBg {
+    visibility: visible;
+    opacity: 1;
+}

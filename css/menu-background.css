@@ -1,0 +1,246 @@
+/* ============================================
+ФОН МЕНЮ: ЖИВОЙ КОСМОС
+============================================ */
+#menuBg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+body.in-game #menuBg {
+    opacity: 0;
+}
+
+body:not(.in-game) #menuBg {
+    opacity: 1;
+}
+
+.sidebar { z-index: 1000; }
+.main-content { z-index: 999; }
+
+/* ============================================
+ПРЕВЬЮ ДРОНОВ В ПРОКАЧКЕ
+============================================ */
+.drone-preview-card {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 0, 0, 0.5));
+    border: 2px solid var(--drone-color, #0ff);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: visible; /* 🔧 visible — дрон может вылетать за границы */
+    transition: all 0.3s ease;
+}
+
+.drone-preview-card.flash {
+    animation: droneFlash 0.6s ease-out;
+}
+
+@keyframes droneFlash {
+    0% { box-shadow: 0 0 0 0 var(--drone-color, #0ff); }
+    50% { box-shadow: 0 0 50px 15px var(--drone-color, #0ff); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.drone-preview-header {
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 5;
+}
+
+.drone-preview-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--drone-color, #0ff);
+    text-shadow: 0 0 10px var(--drone-color, #0ff);
+    margin-bottom: 5px;
+}
+
+.drone-preview-desc {
+    font-size: 13px;
+    color: #aaa;
+}
+
+.drone-stats-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--drone-color, #0ff);
+    border-radius: 10px;
+    padding: 15px;
+    position: relative;
+    z-index: 2;
+}
+
+.drone-preview-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: #88ccff;
+}
+
+.drone-preview-stats span {
+    background: rgba(0, 255, 255, 0.08);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.drone-upgrade-hint {
+    padding: 15px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+/* Табы дронов */
+.drone-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.drone-tab {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 15px !important;
+    font-size: 14px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    color: #888 !important;
+    border: 2px solid #333 !important;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+}
+
+.drone-tab.locked { opacity: 0.4 !important; cursor: not-allowed; }
+
+.drone-tab.active {
+    background: rgba(0, 255, 255, 0.15) !important;
+    color: var(--drone-color, #0ff) !important;
+    border-color: var(--drone-color, #0ff) !important;
+    box-shadow: 0 0 15px var(--drone-color, #0ff);
+}
+
+.drone-tab:hover:not(.locked) {
+    background: rgba(0, 255, 255, 0.1) !important;
+    border-color: var(--drone-color, #0ff) !important;
+}
+
+/* Список улучшений */
+.drone-upgrade-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    position: relative;
+    z-index: 5;
+}
+
+.drone-upgrade-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    border-left: 3px solid var(--drone-color, #0ff);
+    transition: all 0.3s;
+}
+
+.drone-upgrade-row:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: translateX(3px);
+}
+
+.drone-upgrade-row.maxed {
+    border-left-color: #00ff66;
+    background: rgba(0, 255, 102, 0.05);
+}
+
+.drone-upgrade-info { flex: 1; }
+
+.drone-upgrade-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.drone-upgrade-desc {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.drone-upgrade-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.drone-upgrade-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--drone-color, #0ff), #fff);
+    transition: width 0.5s ease;
+    box-shadow: 0 0 8px var(--drone-color, #0ff);
+}
+
+.drone-upgrade-btn {
+    min-width: 110px;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    background: linear-gradient(135deg, var(--drone-color, #0ff), #0088ff) !important;
+    color: #000 !important;
+    border: none !important;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: all 0.25s;
+}
+
+.drone-upgrade-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--drone-color, #0ff);
+}
+
+.drone-upgrade-btn:disabled {
+    background: #333 !important;
+    color: #666 !important;
+    cursor: not-allowed;
+}
+
+.drone-upgrade-btn.maxed {
+    background: #00ff66 !important;
+    color: #000 !important;
+}
+
+@media (max-width: 768px) {
+    .drone-tab {
+        min-width: 90px;
+        font-size: 12px !important;
+        padding: 8px 10px !important;
+    }
+    .drone-upgrade-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .drone-upgrade-btn { width: 100%; }
+}
